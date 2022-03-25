@@ -80,6 +80,8 @@ Enter::Send("{Enter}")
 #HotIf GetKeyState("F24") and !GetKeyState("F23")
 #HotIf
 
+; right
+
 F24 & 7::^s
 F24 & 8::return
 F24 & 9::return
@@ -100,24 +102,7 @@ F24 & m::/
 F24 & ,::,
 F24 & .::.
 
-; F24 & 7::-
-; F24 & 8::=
-; F24 & 9::+-
-; F24 & 0::+=
-
-; F24 & y::[
-; F24 & u::]
-; F24 & i::+[
-; F24 & o::+]
-
-; F24 & h::;
-; F24 & j::Send("{'}")
-; F24 & k::+;
-; F24 & l::Send("+'")
-
-; F24 & n::/
-; F24 & ,::+/
-; F24 & .::.
+; left
 
 F24 & e::Send("{Blind}{Up}")
 F24 & d::Send("{Blind}{Down}")
@@ -125,6 +110,8 @@ F24 & s::Send("{Blind}{Left}")
 F24 & f::Send("{Blind}{Right}")
 F24 & w::Send("{Blind}{Home}")
 F24 & r::Send("{Blind}{End}")
+
+; function keys
 
 F24 & F11::KeyHistory()
 F24 & F12::Refresh()
