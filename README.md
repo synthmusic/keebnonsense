@@ -10,12 +10,12 @@ teensy 4.1 w/ input usb hub
 
 arrangement
 
-     keypad    keypad    
-       | usb     | usb
-    /--|----|----|----|--  usb hub
-    | usb  
-Teensy 4.1  keyboard   numpad
-    | usb     |          |
- /--|----|----|----------|-- usb hub
- | usb
-Computer
+          keypad    keypad    
+            | usb     | usb
+         /--|----|----|----|--  usb hub
+         | usb  
+     Teensy 4.1  keyboard   numpad
+         | usb     |          |
+      /--|----|----|----------|-- usb hub
+      | usb
+     Computer
