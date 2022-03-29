@@ -83,8 +83,8 @@ F24 & 9::return
 F24 & 0::return
 
 F24 & y::[
-F24 & u::+9
-F24 & i::+[ 
+F24 & u::+[ 
+F24 & i::+9
 F24 & o::+=
 
 F24 & h::*
@@ -124,76 +124,76 @@ F24 & F7::ChangeBrightness( 3 ) ; increase brightness
 ;right
 
 F23 & y::]
-F23 & u::+0
-F23 & i::+]
+F23 & u::+]
+F23 & i::+0
 F23 & o::-
 
 F23 & h::/
-F23 & j::+;
-F23 & k::
-    F23 & l::Send("'")
+F23 & j::=
+F23 & k::+;
+F23 & l::Send("'")
 
-    F23 & n::+=
-    F23 & m::/
-    F23 & ,::+,
-    F23 & .::+.
+F23 & n::+=
+F23 & m::/
+F23 & ,::+,
+F23 & .::+.
 
-    ;keypad mouse scroll
-    F21::Scroll("WU", "F21")
-    F22::Scroll("WD", "F22")
+;keypad mouse scroll
+F21::Scroll("WU", "F21")
+F22::Scroll("WD", "F22")
 
-    ;left
+;left
 
-    F23 & e::Send("{Blind}^+{Up}")
-    F23 & d::Send("{Blind}^+{Down}")
-    F23 & s::Send("{Blind}^+{Left}")
-    F23 & f::Send("{Blind}^+{Right}")
-    F23 & w::Send("{Blind}^+{Home}")
-    F23 & r::Send("{Blind}^+{End}")
+F23 & e::Send("{Blind}^+{Up}")
+F23 & d::Send("{Blind}^+{Down}")
+F23 & s::Send("{Blind}^+{Left}")
+F23 & f::Send("{Blind}^+{Right}")
+F23 & w::Send("{Blind}^+{Home}")
+F23 & r::Send("{Blind}^+{End}")
 
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Functions
-    ChangeBrightness(change)
-    {
-        brightness := Min(Max(GetCurrentBrightness() + change, 0), 100)
-        timeout := 1
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Functions
+ChangeBrightness(change)
+{
+    brightness := Min(Max(GetCurrentBrightness() + change, 0), 100)
+    timeout := 1
 
-        ToolTip (brightness)
+    ToolTip (brightness)
 
-        For property in ComObjGet( "winmgmts:\\.\root\WMI" ).ExecQuery( "SELECT * FROM WmiMonitorBrightnessMethods" )
-            property.WmiSetBrightness( timeout, brightness )
-    }
+    For property in ComObjGet( "winmgmts:\\.\root\WMI" ).ExecQuery( "SELECT * FROM WmiMonitorBrightnessMethods" )
+        property.WmiSetBrightness( timeout, brightness )
+}
 
-    GetCurrentBrightness()
-    {
-        For property in ComObjGet( "winmgmts:\\.\root\WMI" ).ExecQuery( "SELECT * FROM WmiMonitorBrightness" )
-            currentBrightness := property.CurrentBrightness	
+GetCurrentBrightness()
+{
+    For property in ComObjGet( "winmgmts:\\.\root\WMI" ).ExecQuery( "SELECT * FROM WmiMonitorBrightness" )
+        currentBrightness := property.CurrentBrightness	
 
-        return currentBrightness
-    }
+    return currentBrightness
+}
 
-    ShowWindowData()
-    {
-        ; WinGetPos &X, &Y, &W, &H, "A"
-        MonitorGetWorkArea 1, &X, &Y, &W, &H
-        MsgBox "The primary is at " X " , " Y " - " W " x " H
-    }
+ShowWindowData()
+{
+    ; WinGetPos &X, &Y, &W, &H, "A"
+    MonitorGetWorkArea 1, &X, &Y, &W, &H
+    MsgBox "The primary is at " X " , " Y " - " W " x " H
+}
 
-    Refresh() 
-    {
-        ; this reloads the script
-        Send("^s")
-        Sleep (100)
-        Run "C:\Users\John\Documents\exec\keypadHelper.bat"
-    }
+Refresh() 
+{
+    ; this reloads the script
+    Send("^s")
+    Sleep (100)
+    Run "C:\Users\John\Documents\exec\keypadHelper.bat"
+}
 
-    Scroll(dir, key)
-    {
+Scroll(dir, key)
+{
+    Click(dir)
+    Sleep(120)
+    While GetKeyState(key) { 
         Click(dir)
-        Sleep(120)
-        While GetKeyState(key) { 
-            Click(dir)
-            Sleep(30)
-        }
-
+        Sleep(30)
     }
+
+}
 
