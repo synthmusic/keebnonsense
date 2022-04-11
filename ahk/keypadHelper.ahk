@@ -13,10 +13,10 @@ PrintScreen::CapsLock
 
 F13::Space
 
-LAlt::LShift 
-RAlt::RShift
-LShift::LAlt
-RShift::RAlt
+; LAlt::LShift 
+; RAlt::RShift
+; LShift::LAlt
+; RShift::RAlt
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; CAPS LOCK
 #HotIf GetKeyState("CapsLock", "T")
@@ -75,6 +75,12 @@ Enter::Send("{Enter}")
 #HotIf GetKeyState("F24") and !GetKeyState("F23")
 #HotIf
 
+#HotIf GetKeyState("Shift")
+F24 & y::]
+F24 & u::Send("{}}")
+F24 & i::Send("{)}")
+#HotIf
+
 ; right
 
 F24 & 7::^s
@@ -99,12 +105,19 @@ F24 & .::.
 
 ; left
 
-F24 & e::Send("{Blind}{Up}")
-F24 & d::Send("{Blind}{Down}")
-F24 & s::Send("{Blind}{Left}")
-F24 & f::Send("{Blind}{Right}")
-F24 & w::Send("{Blind}{Home}")
-F24 & r::Send("{Blind}{End}")
+; F24 & e::Send("{Blind}{Up}")
+; F24 & d::Send("{Blind}{Down}")
+; F24 & s::Send("{Blind}{Left}")
+; F24 & f::Send("{Blind}{Right}")
+; F24 & w::Send("{Blind}{Home}")
+; F24 & r::Send("{Blind}{End}")
+
+F24 & e::Send("{Up}")
+F24 & d::Send("{Down}")
+F24 & s::Send("{Left}")
+F24 & f::Send("{Right}")
+F24 & w::Send("{Home}")
+F24 & r::Send("{End}")
 
 ; function keys
 
