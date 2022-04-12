@@ -17,7 +17,7 @@ const bool SHOW_KEYBOARD_DATA = true;
 
 elapsedMillis sincePressed;
 int lastKeyPressed = 0;
-int rootK = 0;
+int rootK = 1;
 
 bool isActiveScrollUp = false,
      isActiveScrollDown = false;
@@ -26,6 +26,11 @@ uint8_t keyboard_last_leds = 0;
 uint8_t keyboard_modifiers = 0; // try to keep a reasonable value
 
 const int NA = 0x1B;
+
+int AHK_LEFT_SHIFT = KEY_LEFT_ALT,
+    AHK_LEFT_ALT = KEY_LEFT_SHIFT,
+    AHK_B = KEY_CAPS_LOCK,
+    AHK_SPACE = KEY_F13;
 
 USBHost myusb;
 USBHub hub1(myusb);
@@ -57,17 +62,16 @@ void setup()
     Serial.println(sizeof(USBHub), DEC);
 
     myusb.begin();
-    keyboard1.attachPress(ShowOnPress);
-    // keyboard1.attachPress(Press1);
-    // keyboard1.attachRelease(Release1);
 
-    keyboard1.attachRawPress(RawPress1);
-    keyboard1.attachRawRelease(RawRelease1);
-    //     keyboard1.attachRawPress(OnRawPress);
-    //     keyboard1.attachRawRelease(OnRawRelease);
-
+    keyboard1.attachPress(ShowPress1);
+    keyboard1.attachRawPress(OnRawPress1);
+    keyboard1.attachRawRelease(OnRawRelease1);
     keyboard1.attachExtrasPress(OnHIDExtrasPress);
     keyboard1.attachExtrasRelease(OnHIDExtrasRelease);
+    // keyboard1.attachPress(Press1);
+    // keyboard1.attachRelease(Release1);
+    // keyboard1.attachRawPress(RawPress1);
+    // keyboard1.attachRawRelease(RawRelease1);
 
     keyboard2.attachPress(Press2);
     keyboard2.attachRelease(Release2);
@@ -85,24 +89,25 @@ void setup()
     keyboard8.attachRelease(Release8);
 }
 
-void Press1(int key) { OnPress(key, keyboard1, 1, true); }
-void Release1(int key) { OnPress(key, keyboard1, 1, false); }
+void ShowPress1(int key) { ShowOnPress(key, keyboard1); }
+void Press1(int key) { OnKeypadPress(key, keyboard1, 1, true); }
+void Release1(int key) { OnKeypadPress(key, keyboard1, 1, false); }
 void RawPress1(uint8_t key) { OnRawPress(key, keyboard1, 1, true); }
 void RawRelease1(uint8_t key) { OnRawPress(key, keyboard1, 1, false); }
-void Press2(int key) { OnPress(key, keyboard2, 2, true); }
-void Release2(int key) { OnPress(key, keyboard2, 2, false); }
-void Press3(int key) { OnPress(key, keyboard3, 3, true); }
-void Release3(int key) { OnPress(key, keyboard3, 3, false); }
-void Press4(int key) { OnPress(key, keyboard4, 4, true); }
-void Release4(int key) { OnPress(key, keyboard4, 4, false); }
-void Press5(int key) { OnPress(key, keyboard5, 5, true); }
-void Release5(int key) { OnPress(key, keyboard5, 5, false); }
-void Press6(int key) { OnPress(key, keyboard6, 6, true); }
-void Release6(int key) { OnPress(key, keyboard6, 6, false); }
-void Press7(int key) { OnPress(key, keyboard7, 7, true); }
-void Release7(int key) { OnPress(key, keyboard7, 7, false); }
-void Press8(int key) { OnPress(key, keyboard8, 8, true); }
-void Release8(int key) { OnPress(key, keyboard8, 8, false); }
+void Press2(int key) { OnKeypadPress(key, keyboard2, 2, true); }
+void Release2(int key) { OnKeypadPress(key, keyboard2, 2, false); }
+void Press3(int key) { OnKeypadPress(key, keyboard3, 3, true); }
+void Release3(int key) { OnKeypadPress(key, keyboard3, 3, false); }
+void Press4(int key) { OnKeypadPress(key, keyboard4, 4, true); }
+void Release4(int key) { OnKeypadPress(key, keyboard4, 4, false); }
+void Press5(int key) { OnKeypadPress(key, keyboard5, 5, true); }
+void Release5(int key) { OnKeypadPress(key, keyboard5, 5, false); }
+void Press6(int key) { OnKeypadPress(key, keyboard6, 6, true); }
+void Release6(int key) { OnKeypadPress(key, keyboard6, 6, false); }
+void Press7(int key) { OnKeypadPress(key, keyboard7, 7, true); }
+void Release7(int key) { OnKeypadPress(key, keyboard7, 7, false); }
+void Press8(int key) { OnKeypadPress(key, keyboard8, 8, true); }
+void Release8(int key) { OnKeypadPress(key, keyboard8, 8, false); }
 
 void downup(int key, bool down)
 {
@@ -159,11 +164,6 @@ void downup(int key1, int key2, int key3, bool down)
 
 void noop() {}
 
-int AHK_LEFT_SHIFT = KEY_LEFT_ALT,
-    AHK_LEFT_ALT = KEY_LEFT_SHIFT,
-    AHK_B = KEY_CAPS_LOCK,
-    AHK_SPACE = KEY_F13;
-
 void OnRawPress(uint8_t key, KeyboardController kb, int kbNum, bool down)
 {
     int d = down;
@@ -186,14 +186,13 @@ void OnRawPress(uint8_t key, KeyboardController kb, int kbNum, bool down)
     }
 }
 
-void OnPress(int key, KeyboardController kb, int kbNum, bool down)
+void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
 {
     int k = key;
     int d = down;
 
     if (kbNum == rootK)
     {
-        downup(key, down);
     }
     else if (kbNum == rootK + 1) // LEFT
 
@@ -251,33 +250,6 @@ void OnPress(int key, KeyboardController kb, int kbNum, bool down)
 
                     : void(0);
     }
-    else if (kbNum == rootK + 2) // RIGHT
-    {
-        k == nTab         ? noop()
-        : k == nDiv       ? downup(KEY_LEFT_CTRL, KEY_F, d)
-        : k == nMult      ? downup(KEY_F3, d)
-        : k == nBackspace ? downup(KEY_F21, d)
-
-        : k == n7   ? noop()
-        : k == n9   ? downup(KEY_LEFT_CTRL, KEY_P, d)
-        : k == n8   ? noop()
-        : k == nSub ? downup(KEY_F22, d)
-
-        : k == n4   ? noop()
-        : k == n5   ? noop()
-        : k == n6   ? downup(KEY_F23, d)
-        : k == nAdd ? downup(KEY_F24, d)
-
-        : k == n1     ? noop()
-        : k == n2     ? downup(KEY_LEFT_CTRL, KEY_Z, d)
-        : k == n3     ? downup(KEY_BACKSPACE, d)
-        : k == nEnter ? downup(AHK_SPACE, d)
-
-        : k == n0   ? downup(KEY_ENTER, d)
-        : k == nDot ? downup(KEY_LEFT_CTRL, d)
-
-                    : void(0);
-    }
     else
     {
         downup(key, down);
@@ -299,38 +271,6 @@ void OnPress(int key, KeyboardController kb, int kbNum, bool down)
     Serial.print(kb.getOemKey(), HEX);
     Serial.print(" LEDS: ");
     Serial.println(kb.LEDS(), HEX);
-}
-
-void OnHIDExtrasPress(uint32_t top, uint16_t key)
-{
-
-    if (top == 0xc0000)
-    {
-        Keyboard.press(0XE400 | key);
-    }
-
-    if (SHOW_KEYBOARD_DATA)
-    {
-        ShowHIDExtrasPress(top, key);
-    }
-}
-
-void OnHIDExtrasRelease(uint32_t top, uint16_t key)
-{
-
-    if (top == 0xc0000)
-    {
-        Keyboard.release(0XE400 | key);
-    }
-
-    if (SHOW_KEYBOARD_DATA)
-    {
-
-        Serial.print("HID (");
-        Serial.print(top, HEX);
-        Serial.print(") key release:");
-        Serial.println(key, HEX);
-    }
 }
 
 void loop()
@@ -370,7 +310,7 @@ void ShowDeviceData()
     }
 }
 
-void OnRawPress(uint8_t keycode)
+void OnRawPress1(uint8_t keycode)
 {
 
     if (keyboard_leds != keyboard_last_leds)
@@ -388,20 +328,19 @@ void OnRawPress(uint8_t keycode)
         keyboard_modifiers |= keybit;
         Keyboard.set_modifier(keyboard_modifiers);
     }
-    else
-    {
-        if (keyboard1.getModifiers() != keyboard_modifiers)
-        {
-            if (SHOW_KEYBOARD_DATA)
-            {
 
-                Serial.printf("Mods mismatch: %x != %x\n", keyboard_modifiers, keyboard1.getModifiers());
-            }
-            keyboard_modifiers = keyboard1.getModifiers();
-            Keyboard.set_modifier(keyboard_modifiers);
+    if (keyboard1.getModifiers() != keyboard_modifiers)
+    {
+        if (SHOW_KEYBOARD_DATA)
+        {
+
+            Serial.printf("Mods mismatch: %x != %x\n", keyboard_modifiers, keyboard1.getModifiers());
         }
-        Keyboard.press(0XF000 | keycode);
+        keyboard_modifiers = keyboard1.getModifiers();
+        Keyboard.set_modifier(keyboard_modifiers);
     }
+
+    Keyboard.press(0XF000 | keycode);
 
     if (SHOW_KEYBOARD_DATA)
     {
@@ -413,7 +352,7 @@ void OnRawPress(uint8_t keycode)
     }
 }
 
-void OnRawRelease(uint8_t keycode)
+void OnRawRelease1(uint8_t keycode)
 {
 
     if (keycode >= 103 && keycode < 111)
@@ -424,10 +363,8 @@ void OnRawRelease(uint8_t keycode)
         keyboard_modifiers &= ~keybit;
         Keyboard.set_modifier(keyboard_modifiers);
     }
-    else
-    {
-        Keyboard.release(0XF000 | keycode);
-    }
+
+    Keyboard.release(0XF000 | keycode);
 
     if (SHOW_KEYBOARD_DATA)
     {
@@ -436,5 +373,37 @@ void OnRawRelease(uint8_t keycode)
         Serial.print(keycode, HEX);
         Serial.print(" Modifiers: ");
         Serial.println(keyboard1.getModifiers(), HEX);
+    }
+}
+
+void OnHIDExtrasPress(uint32_t top, uint16_t key)
+{
+
+    if (top == 0xc0000)
+    {
+        Keyboard.press(0XE400 | key);
+    }
+
+    if (SHOW_KEYBOARD_DATA)
+    {
+        ShowHIDExtrasPress(top, key);
+    }
+}
+
+void OnHIDExtrasRelease(uint32_t top, uint16_t key)
+{
+
+    if (top == 0xc0000)
+    {
+        Keyboard.release(0XE400 | key);
+    }
+
+    if (SHOW_KEYBOARD_DATA)
+    {
+
+        Serial.print("HID (");
+        Serial.print(top, HEX);
+        Serial.print(") key release:");
+        Serial.println(key, HEX);
     }
 }
