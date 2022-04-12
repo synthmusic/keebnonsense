@@ -1,3 +1,54 @@
+const int nDiv = 0x2F,
+          nMult = 0x2A,
+          nSub = 0x2D,
+          nAdd = 0x2B,
+          nEnter = 0x0A,
+          n1 = 0xD5,
+          n2 = 0xD9,
+          n3 = 0xD6,
+          n4 = 0xD8,
+          n5 = 0x00,
+          n6 = 0xD7,
+          n7 = 0xD2,
+          n8 = 0xDA,
+          n9 = 0xD3,
+          n0 = 0xD1,
+          nDot = 0xD4,
+          nTab = 0x09,
+          nBackspace = 0x7F;
+
+const uint8_t RAW_LEFT_CTRL = 0x67,
+              RAW_LEFT_SHIFT = 0x68,
+              RAW_LEFT_ALT = 0x69,
+              RAW_LEFT_GUI = 0x6A,
+              RAW_RIGHT_CTRL = 0x6B,
+              RAW_RIGHT_SHIFT = 0x6C,
+              RAW_RIGHT_ALT = 0x6D;
+
+const char *KeypadShowNames(int key)
+{
+    return key == nDiv         ? "nDiv"
+           : key == nMult      ? "nMult"
+           : key == nSub       ? "nSub"
+           : key == nAdd       ? "nAdd"
+           : key == nEnter     ? "nEnter"
+           : key == n1         ? "n1"
+           : key == n2         ? "n2"
+           : key == n3         ? "n3"
+           : key == n4         ? "n4"
+           : key == n5         ? "n5"
+           : key == n6         ? "n6"
+           : key == n7         ? "n7"
+           : key == n8         ? "n8"
+           : key == n9         ? "n9"
+           : key == n0         ? "n0"
+           : key == nDot       ? "nDot"
+           : key == nTab       ? "nTab"
+           : key == nBackspace ? "nBackspace"
+
+                               : "not found";
+}
+
 void ShowOnPress(int key, KeyboardController keyboard)
 {
     Serial.print("key '");
