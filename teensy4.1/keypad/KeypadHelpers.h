@@ -25,7 +25,7 @@ const uint8_t RAW_LEFT_CTRL = 0x67,
               RAW_RIGHT_SHIFT = 0x6C,
               RAW_RIGHT_ALT = 0x6D;
 
-const char *KeypadShowNames(int key)
+const String KeypadShowNames(int key)
 {
     return key == nDiv         ? "nDiv"
            : key == nMult      ? "nMult"
@@ -46,10 +46,10 @@ const char *KeypadShowNames(int key)
            : key == nTab       ? "nTab"
            : key == nBackspace ? "nBackspace"
 
-                               : "not found";
+                               : String(key);
 }
 
-void ShowOnPress(int key, KeyboardController keyboard)
+void ShowOutPress(int key, KeyboardController keyboard)
 {
     Serial.print("key '");
     switch (key)
@@ -121,7 +121,7 @@ void ShowOnPress(int key, KeyboardController keyboard)
         Serial.print("F12");
         break;
     default:
-        Serial.print((char)key);
+        Serial.print(String(key));
         break;
     }
     Serial.print("'  ");

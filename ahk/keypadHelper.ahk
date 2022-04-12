@@ -4,14 +4,14 @@ A_MaxHotkeysPerInterval := 1000
 RegularKeyboard := GetKeyState("ScrollLock", "T")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DIRECT KEY MAPS
-b::F24
+; b::F24
 CapsLock::b
 PrintScreen::CapsLock
 ^PrintScreen::{
     global RegularKeyboard := !RegularKeyboard
 }
 
-F13::Space
+; F13::Space
 
 ; LAlt::LShift 
 ; RAlt::RShift
@@ -24,9 +24,9 @@ F13::Space
 #HotIf
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; has thumb keypads??
-#HotIf !RegularKeyboard
-Space::Shift
-#HotIf
+; #HotIf !RegularKeyboard
+; Space::Shift
+; #HotIf
 
 ; #HotIf RegularKeyboard
 ; #HotIf
@@ -72,14 +72,14 @@ Enter::Send("{Enter}")
 ; Tab::Send("{Tab}")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; phi
-#HotIf GetKeyState("F24") and !GetKeyState("F23")
-#HotIf
+; #HotIf GetKeyState("F24") and !GetKeyState("F23")
+; #HotIf
 
-#HotIf GetKeyState("Shift")
-F24 & y::]
-F24 & u::Send("{}}")
-F24 & i::Send("{)}")
-#HotIf
+; #HotIf GetKeyState("Shift")
+; F24 & y::]
+; F24 & u::Send("{}}")
+; F24 & i::Send("{)}")
+; #HotIf
 
 ; right
 

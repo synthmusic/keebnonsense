@@ -63,7 +63,7 @@ void setup()
 
     myusb.begin();
 
-    keyboard1.attachPress(ShowPress1);
+    // keyboard1.attachPress(ShowPress1);
     keyboard1.attachRawPress(OnRawPress1);
     keyboard1.attachRawRelease(OnRawRelease1);
     keyboard1.attachExtrasPress(OnHIDExtrasPress);
@@ -73,6 +73,8 @@ void setup()
     // keyboard1.attachRawPress(RawPress1);
     // keyboard1.attachRawRelease(RawRelease1);
 
+    // keyboard1.attachPress(Press1);
+    // keyboard1.attachRelease(Release1);
     keyboard2.attachPress(Press2);
     keyboard2.attachRelease(Release2);
     keyboard3.attachPress(Press3);
@@ -89,11 +91,11 @@ void setup()
     keyboard8.attachRelease(Release8);
 }
 
-void ShowPress1(int key) { ShowOnPress(key, keyboard1); }
-void Press1(int key) { OnKeypadPress(key, keyboard1, 1, true); }
-void Release1(int key) { OnKeypadPress(key, keyboard1, 1, false); }
-void RawPress1(uint8_t key) { OnRawPress(key, keyboard1, 1, true); }
-void RawRelease1(uint8_t key) { OnRawPress(key, keyboard1, 1, false); }
+// void ShowPress1(int key) { ShowOnPress(key, keyboard1); }
+// void Press1(int key) { OnKeypadPress(key, keyboard1, 1, true); }
+// void Release1(int key) { OnKeypadPress(key, keyboard1, 1, false); }
+// void RawPress1(uint8_t key) { OnRawPress(key, keyboard1, 1, true); }
+// void RawRelease1(uint8_t key) { OnRawPress(key, keyboard1, 1, false); }
 void Press2(int key) { OnKeypadPress(key, keyboard2, 2, true); }
 void Release2(int key) { OnKeypadPress(key, keyboard2, 2, false); }
 void Press3(int key) { OnKeypadPress(key, keyboard3, 3, true); }
@@ -111,6 +113,9 @@ void Release8(int key) { OnKeypadPress(key, keyboard8, 8, false); }
 
 void downup(int key, bool down)
 {
+    Serial.print(down ? "out down 0x" : "up 0x");
+    Serial.println(key, HEX);
+
     if (down)
     {
         // Serial.print(sincePressed);
@@ -126,6 +131,11 @@ void downup(int key, bool down)
 
 void downup(int key1, int key2, bool down)
 {
+    Serial.print(down ? "out down 0x" : "up 0x");
+    Serial.print(key1, HEX);
+    Serial.print(", 0x");
+    Serial.println(key2, HEX);
+
     if (down)
     {
         Keyboard.press(key1);
@@ -164,28 +174,6 @@ void downup(int key1, int key2, int key3, bool down)
 
 void noop() {}
 
-void OnRawPress(uint8_t key, KeyboardController kb, int kbNum, bool down)
-{
-    int d = down;
-
-    Serial.print("0x");
-    Serial.print(key, HEX);
-    Serial.println(down ? "  pressed" : "  released");
-
-    if (kbNum == 1)
-    {
-        key == RAW_LEFT_CTRL     ? downup(MODIFIERKEY_CTRL, d)
-        : key == RAW_LEFT_SHIFT  ? downup(MODIFIERKEY_SHIFT, d)
-        : key == RAW_LEFT_ALT    ? downup(MODIFIERKEY_ALT, d)
-        : key == RAW_LEFT_GUI    ? downup(MODIFIERKEY_GUI, d)
-        : key == RAW_RIGHT_CTRL  ? downup(MODIFIERKEY_RIGHT_CTRL, d)
-        : key == RAW_RIGHT_SHIFT ? downup(MODIFIERKEY_RIGHT_SHIFT, d)
-        : key == RAW_RIGHT_ALT   ? downup(MODIFIERKEY_RIGHT_ALT, d)
-
-                               : void(0);
-    }
-}
-
 void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
 {
     int k = key;
@@ -199,8 +187,8 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
     {
         k == nTab         ? downup(KEY_LEFT_CTRL, KEY_T, d)
         : k == nDiv       ? downup(KEY_LEFT_CTRL, KEY_F4, d)
-        : k == nMult      ? downup(KEY_LEFT_CTRL, AHK_LEFT_SHIFT, AHK_B, d)
-        : k == nBackspace ? downup(AHK_LEFT_ALT, KEY_F4, d)
+        : k == nMult      ? downup(KEY_LEFT_CTRL, KEY_LEFT_SHIFT, AHK_B, d)
+        : k == nBackspace ? downup(KEY_LEFT_ALT, KEY_F4, d)
 
         : k == n7   ? downup(KEY_LEFT_GUI, d)
         : k == n8   ? noop()
@@ -215,7 +203,7 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
         : k == n1     ? downup(KEY_ENTER, d)
         : k == n2     ? downup(KEY_DELETE, d)
         : k == n3     ? downup(KEY_TAB, d)
-        : k == nEnter ? downup(AHK_SPACE, d)
+        : k == nEnter ? downup(KEY_SPACE, d)
 
         : k == n0   ? downup(KEY_LEFT_CTRL, d)
         : k == nDot ? noop()
@@ -243,7 +231,7 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
         : k == n1     ? noop()
         : k == n2     ? downup(KEY_LEFT_CTRL, KEY_Z, d)
         : k == n3     ? downup(KEY_BACKSPACE, d)
-        : k == nEnter ? downup(AHK_SPACE, d)
+        : k == nEnter ? downup(KEY_SPACE, d)
 
         : k == n0   ? downup(KEY_ENTER, d)
         : k == nDot ? downup(KEY_LEFT_CTRL, d)
@@ -257,7 +245,7 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
 
     // PRINT WHAT'S HAPPENING
 
-    Serial.print("kb");
+    Serial.print("IN kb");
     Serial.print(kbNum);
     Serial.print(" - ");
     Serial.print(KeypadShowNames(key));
@@ -312,7 +300,15 @@ void ShowDeviceData()
 
 void OnRawPress1(uint8_t keycode)
 {
+    if (SHOW_KEYBOARD_DATA)
+    {
 
+        Serial.print("RAW IN raw1 0x");
+        Serial.print(keycode, HEX);
+        Serial.print(" Modifiers: ");
+        Serial.print(keyboard_modifiers, HEX);
+        Serial.println("  pressed");
+    }
     if (keyboard_leds != keyboard_last_leds)
     {
         // Serial.printf("New LEDS: %x\n", keyboard_leds);
@@ -324,55 +320,76 @@ void OnRawPress1(uint8_t keycode)
     {
         // one of the modifier keys was pressed, so lets turn it
         // on global..
-        uint8_t keybit = 1 << (keycode - 103);
-        keyboard_modifiers |= keybit;
-        Keyboard.set_modifier(keyboard_modifiers);
-    }
+        // uint8_t keybit = 1 << (keycode - 103);
+        // keyboard_modifiers |= keybit;
+        // Keyboard.set_modifier(keyboard_modifiers);
+        int out =
+            keycode == 103   ? KEY_LEFT_CTRL
+            : keycode == 104 ? KEY_LEFT_SHIFT
+            : keycode == 105 ? KEY_LEFT_ALT
+            : keycode == 106 ? KEY_LEFT_GUI
+            : keycode == 107 ? KEY_RIGHT_CTRL
+            : keycode == 108 ? KEY_RIGHT_SHIFT
+            : keycode == 109 ? KEY_RIGHT_ALT
+            : keycode == 110 ? KEY_RIGHT_GUI
+                             : 0;
 
-    if (keyboard1.getModifiers() != keyboard_modifiers)
+        downup(out, true);
+    }
+    else
     {
-        if (SHOW_KEYBOARD_DATA)
-        {
-
-            Serial.printf("Mods mismatch: %x != %x\n", keyboard_modifiers, keyboard1.getModifiers());
-        }
-        keyboard_modifiers = keyboard1.getModifiers();
-        Keyboard.set_modifier(keyboard_modifiers);
+        Serial.print("out press ");
+        ShowOutPress(0XF000 | keycode, keyboard1);
+        Keyboard.press(0XF000 | keycode);
     }
 
-    Keyboard.press(0XF000 | keycode);
+    // if (keyboard1.getModifiers() != keyboard_modifiers)
+    // {
+    //     if (SHOW_KEYBOARD_DATA)
+    //     {
 
-    if (SHOW_KEYBOARD_DATA)
-    {
-
-        Serial.print("OnRawPress keycode: ");
-        Serial.print(keycode, HEX);
-        Serial.print(" Modifiers: ");
-        Serial.println(keyboard_modifiers, HEX);
-    }
+    //         Serial.printf("Mods mismatch: %x != %x\n", keyboard_modifiers, keyboard1.getModifiers());
+    //     }
+    //     keyboard_modifiers = keyboard1.getModifiers();
+    //     Keyboard.set_modifier(keyboard_modifiers);
+    // }
 }
 
 void OnRawRelease1(uint8_t keycode)
 {
-
+    if (SHOW_KEYBOARD_DATA)
+    {
+        Serial.print("RAW IN raw1 0x");
+        Serial.print(keycode, HEX);
+        Serial.print(" Modifiers: ");
+        Serial.print(keyboard_modifiers, HEX);
+        Serial.println("  released");
+    }
     if (keycode >= 103 && keycode < 111)
     {
         // one of the modifier keys was pressed, so lets turn it
         // on global..
-        uint8_t keybit = 1 << (keycode - 103);
-        keyboard_modifiers &= ~keybit;
-        Keyboard.set_modifier(keyboard_modifiers);
+        // uint8_t keybit = 1 << (keycode - 103);
+        // keyboard_modifiers &= ~keybit;
+        // Keyboard.set_modifier(keyboard_modifiers);
+        int out =
+            keycode == 103   ? KEY_LEFT_CTRL
+            : keycode == 104 ? KEY_LEFT_SHIFT
+            : keycode == 105 ? KEY_LEFT_ALT
+            : keycode == 106 ? KEY_LEFT_GUI
+            : keycode == 107 ? KEY_RIGHT_CTRL
+            : keycode == 108 ? KEY_RIGHT_SHIFT
+            : keycode == 109 ? KEY_RIGHT_ALT
+            : keycode == 110 ? KEY_RIGHT_GUI
+                             : 0;
+
+        downup(out, false);
     }
-
-    Keyboard.release(0XF000 | keycode);
-
-    if (SHOW_KEYBOARD_DATA)
+    else
     {
-
-        Serial.print("OnRawRelease keycode: ");
-        Serial.print(keycode, HEX);
-        Serial.print(" Modifiers: ");
-        Serial.println(keyboard1.getModifiers(), HEX);
+        Serial.print("out release ");
+        ShowOutPress(0XF000 | keycode, keyboard1);
+        Keyboard.release(0XF000 | keycode);
     }
 }
 
