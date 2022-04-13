@@ -56,7 +56,7 @@ void ShowOutPress(int key, KeyboardController keyboard)
     {
     case KEYD_UP:
         Serial.print("UP");
-        4k break;
+        break;
     case KEYD_DOWN:
         Serial.print("DN");
         break;

@@ -15,12 +15,15 @@
 ////////////   old version
 const bool SHOW_KEYBOARD_DATA = true;
 
-elapsedMillis sincePressed;
+elapsedMillis sincePressedPhi,
+    sincePressedDelta;
 int lastKeyPressed = 0;
 int rootK = 1;
 
 bool isActiveScrollUp = false,
-     isActiveScrollDown = false;
+     isActiveScrollDown = false,
+     phiLock = false,
+     deltaLock = false;
 
 uint8_t keyboard_last_leds = 0;
 uint8_t keyboard_modifiers = 0; // try to keep a reasonable value
@@ -30,7 +33,9 @@ const int NA = 0x1B;
 int AHK_LEFT_SHIFT = KEY_LEFT_ALT,
     AHK_LEFT_ALT = KEY_LEFT_SHIFT,
     AHK_B = KEY_CAPS_LOCK,
-    AHK_SPACE = KEY_F13;
+    AHK_SPACE = KEY_F13,
+    KEY_PHI = KEY_F24,
+    KEY_DELTA = KEY_F23;
 
 USBHost myusb;
 USBHub hub1(myusb);
@@ -116,6 +121,26 @@ void downup(int key, bool down)
     Serial.print(down ? "out down 0x" : "up 0x");
     Serial.println(key, HEX);
 
+    if (key == KEY_PHI)
+    {
+        if (down)
+        {
+            sincePressedPhi = 0;
+        }
+        else
+        {
+            if (sincePressedPhi < 120)
+            {
+                if (!phiLock)
+                {
+                    phiLock = true;
+                    return;
+                }
+            }
+            phiLock = false;
+        }
+    }
+
     if (down)
     {
         // Serial.print(sincePressed);
@@ -195,8 +220,8 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
         : k == n9   ? noop()
         : k == nSub ? noop()
 
-        : k == n4   ? downup(KEY_F24, d)
-        : k == n5   ? downup(KEY_F23, d)
+        : k == n4   ? downup(KEY_PHI, d)
+        : k == n5   ? downup(KEY_DELTA, d)
         : k == n6   ? downup(KEY_ESC, d)
         : k == nAdd ? noop()
 
@@ -225,8 +250,8 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
 
         : k == n4   ? noop()
         : k == n5   ? noop()
-        : k == n6   ? downup(KEY_F23, d)
-        : k == nAdd ? downup(KEY_F24, d)
+        : k == n6   ? downup(KEY_DELTA, d)
+        : k == nAdd ? downup(KEY_PHI, d)
 
         : k == n1     ? noop()
         : k == n2     ? downup(KEY_LEFT_CTRL, KEY_Z, d)
