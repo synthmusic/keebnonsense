@@ -96,7 +96,7 @@ F24 & o::+=
 F24 & h::*
 F24 & j::=
 F24 & k::;
-F24 & l::Send("+'")
+F24 & l::+'
 
 F24 & n::-
 F24 & m::+/
@@ -112,12 +112,12 @@ F24 & .::.
 ; F24 & w::Send("{Blind}{Home}")
 ; F24 & r::Send("{Blind}{End}")
 
-F24 & e::Send("{Up}")
-F24 & d::Send("{Down}")
-F24 & s::Send("{Left}")
-F24 & f::Send("{Right}")
-F24 & w::Send("{Home}")
-F24 & r::Send("{End}")
+F24 & e::Up
+F24 & d::Down
+F24 & s::Left
+F24 & f::Right
+F24 & w::Home
+F24 & r::End
 
 ; function keys
 
@@ -144,7 +144,7 @@ F23 & o::-
 F23 & h::/
 F23 & j::=
 F23 & k::+;
-F23 & l::Send("'")
+F23 & l::'
 
 F23 & n::+=
 F23 & m::/
