@@ -5,8 +5,10 @@ RegularKeyboard := GetKeyState("ScrollLock", "T")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DIRECT KEY MAPS
 ; b::F24
-CapsLock::b
+CapsLock::k
 PrintScreen::CapsLock
+Pause::CapsLock
+
 ^PrintScreen::{
     global RegularKeyboard := !RegularKeyboard
 }
@@ -59,7 +61,7 @@ Enter & w::Home
 
 Enter & i::Up
 Enter & l::Right
-Enter & k::Down
+Enter & b::Down
 Enter & j::Left
 Enter & o::End
 Enter & u::Home
@@ -95,7 +97,7 @@ F24 & o::+=
 
 F24 & h::*
 F24 & j::=
-F24 & k::;
+F24 & b::;
 F24 & l::+'
 
 F24 & n::-
@@ -143,17 +145,13 @@ F23 & o::-
 
 F23 & h::/
 F23 & j::=
-F23 & k::+;
+F23 & b::+;
 F23 & l::'
 
 F23 & n::+=
 F23 & m::/
 F23 & ,::+,
 F23 & .::+.
-
-;keypad mouse scroll
-F21::Scroll("WU", "F21")
-F22::Scroll("WD", "F22")
 
 ;left
 
@@ -163,6 +161,10 @@ F23 & s::Send("{Blind}^+{Left}")
 F23 & f::Send("{Blind}^+{Right}")
 F23 & w::Send("{Blind}^+{Home}")
 F23 & r::Send("{Blind}^+{End}")
+
+;keypad mouse scroll
+F21::Scroll("WU", "F21")
+F22::Scroll("WD", "F22")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Functions
 ChangeBrightness(change)

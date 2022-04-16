@@ -16,7 +16,8 @@
 const bool SHOW_KEYBOARD_DATA = true;
 
 elapsedMillis sincePressedPhi,
-    sincePressedDelta;
+    sincePressedDelta,
+    keyPair;
 int lastKeyPressed = 0;
 int rootK = 1;
 
@@ -100,7 +101,7 @@ void setup()
 // void Press1(int key) { OnKeypadPress(key, keyboard1, 1, true); }
 // void Release1(int key) { OnKeypadPress(key, keyboard1, 1, false); }
 void RawPress1(uint8_t key) { OnRawPress(key, keyboard1, 1, true); }
-void RawRelease1(uint8_t key) { OnRawPress(key, keyboard1, 1, false); }
+void RawReease1(uint8_t key) { OnRawPress(key, keyboard1, 1, false); }
 void Press2(int key) { OnKeypadPress(key, keyboard2, 2, true); }
 void Release2(int key) { OnKeypadPress(key, keyboard2, 2, false); }
 void Press3(int key) { OnKeypadPress(key, keyboard3, 3, true); }
@@ -317,7 +318,7 @@ void ShowDeviceData()
                     Serial.printf("  product: %s\n", psz);
                 psz = drivers[i]->serialNumber();
                 if (psz && *psz)
-                    Serial.printf("  Serial: %s\n", psz);
+                    Serial.printf("  Serial: %s\n                                                                               ", psz);
             }
         }
     }
@@ -350,6 +351,8 @@ void OnRawPress(uint8_t keycode, KeyboardController kb, int kbNum, bool down)
         : keycode == 109  ? KEY_RIGHT_ALT
         : keycode == 110  ? KEY_RIGHT_GUI
         : keycode == 0x2C ? KEY_LEFT_SHIFT // space
+        : keycode == 0xE  ? KEY_B          // K
+        : keycode == 0x39 ? KEY_K          // caps
                           : 0;
 
     if (out == 0)
