@@ -4,7 +4,7 @@ A_MaxHotkeysPerInterval := 1000
 RegularKeyboard := GetKeyState("ScrollLock", "T")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DIRECT KEY MAPS
-; b::F24
+
 CapsLock::k
 PrintScreen::CapsLock
 Pause::CapsLock
@@ -26,9 +26,14 @@ Pause::CapsLock
 #HotIf
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; has thumb keypads??
-; #HotIf !RegularKeyboard
+#HotIf !RegularKeyboard
+b::F24
+k::b
+[::F18
+]::F19
+\::F20
 ; Space::Shift
-; #HotIf
+#HotIf
 
 ; #HotIf RegularKeyboard
 ; #HotIf
@@ -165,6 +170,10 @@ F23 & r::Send("{Blind}^+{End}")
 ;keypad mouse scroll
 F21::Scroll("WU", "F21")
 F22::Scroll("WD", "F22")
+
+F18::LButton
+F19::RButton
+F20::MButton
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Functions
 ChangeBrightness(change)

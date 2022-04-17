@@ -101,7 +101,7 @@ void setup()
 // void Press1(int key) { OnKeypadPress(key, keyboard1, 1, true); }
 // void Release1(int key) { OnKeypadPress(key, keyboard1, 1, false); }
 void RawPress1(uint8_t key) { OnRawPress(key, keyboard1, 1, true); }
-void RawReease1(uint8_t key) { OnRawPress(key, keyboard1, 1, false); }
+void RawRelease1(uint8_t key) { OnRawPress(key, keyboard1, 1, false); }
 void Press2(int key) { OnKeypadPress(key, keyboard2, 2, true); }
 void Release2(int key) { OnKeypadPress(key, keyboard2, 2, false); }
 void Press3(int key) { OnKeypadPress(key, keyboard3, 3, true); }
@@ -213,7 +213,7 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
     {
         k == nTab         ? downup(KEY_LEFT_CTRL, KEY_T, d)
         : k == nDiv       ? downup(KEY_LEFT_CTRL, KEY_F4, d)
-        : k == nMult      ? downup(KEY_LEFT_CTRL, KEY_LEFT_SHIFT, AHK_B, d)
+        : k == nMult      ? noop()
         : k == nBackspace ? downup(KEY_LEFT_ALT, KEY_F4, d)
 
         : k == n7   ? downup(KEY_LEFT_GUI, d)
@@ -239,8 +239,9 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
     else if (kbNum == rootK + 2) // RIGHT
 
     {
-        k == nTab         ? noop()
-        : k == nDiv       ? downup(KEY_LEFT_CTRL, KEY_F, d)
+        k == nTab ? noop()
+                  : k == nDiv
+            ? ;
         : k == nMult      ? downup(KEY_F3, d)
         : k == nBackspace ? downup(KEY_F21, d)
 
@@ -324,7 +325,12 @@ void ShowDeviceData()
     }
 }
 
-void OnRawPress(uint8_t keycode, KeyboardController kb, int kbNum, bool down)
+int RAW_K = 0xE,
+    RAW_CAPS = 0x39,
+    RAW_SPACE = 0x2C
+
+    void
+    OnRawPress(uint8_t keycode, KeyboardController kb, int kbNum, bool down)
 {
     if (SHOW_KEYBOARD_DATA)
     {
@@ -342,18 +348,23 @@ void OnRawPress(uint8_t keycode, KeyboardController kb, int kbNum, bool down)
     }
 
     int out =
-        keycode == 103    ? KEY_LEFT_CTRL
-        : keycode == 104  ? KEY_LEFT_SHIFT
-        : keycode == 105  ? KEY_LEFT_ALT
-        : keycode == 106  ? KEY_LEFT_GUI
-        : keycode == 107  ? KEY_RIGHT_CTRL
-        : keycode == 108  ? KEY_RIGHT_SHIFT
-        : keycode == 109  ? KEY_RIGHT_ALT
-        : keycode == 110  ? KEY_RIGHT_GUI
-        : keycode == 0x2C ? KEY_LEFT_SHIFT // space
-        : keycode == 0xE  ? KEY_B          // K
-        : keycode == 0x39 ? KEY_K          // caps
-                          : 0;
+        keycode == 103         ? KEY_LEFT_CTRL
+        : keycode == 104       ? KEY_LEFT_SHIFT
+        : keycode == 105       ? KEY_LEFT_ALT
+        : keycode == 106       ? KEY_LEFT_GUI
+        : keycode == 107       ? KEY_RIGHT_CTRL
+        : keycode == 108       ? KEY_RIGHT_SHIFT
+        : keycode == 109       ? KEY_RIGHT_ALT
+        : keycode == 110       ? KEY_RIGHT_GUI
+        : keycode == RAW_SPACE ? KEY_LEFT_SHIFT
+        : keycode == RAW_K     ? KEY_B
+        : keycode == RAW_CAPS  ? KEY_K
+        : keycode == 0x2F      ? KEY_F18
+        : keycode == 0x30      ? KEY_F19
+        : keycode == 0x31      ? KEY_F20
+        : keycode == 0x4A      ? KEY_F21
+        : keycode == 0x4D      ? KEY_F22
+                               : 0;
 
     if (out == 0)
     {
