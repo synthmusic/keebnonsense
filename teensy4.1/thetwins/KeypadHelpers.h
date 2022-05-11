@@ -1,23 +1,3 @@
-const int AHK_LEFT_SHIFT = KEY_LEFT_ALT,
-          AHK_LEFT_ALT = KEY_LEFT_SHIFT,
-          AHK_B = KEY_CAPS_LOCK,
-          AHK_SPACE = KEY_F13,
-          KEY_PHI = KEY_F24,
-          KEY_DELTA = KEY_F23,
-          RAW_K = 0xE,
-          RAW_CAPS = 0x39,
-          RAW_SPACE = 0x2C,
-          KEY_BLANK = 0
-    // RAW_L = 0x2F,
-    // RAW_ = 0x,
-    // RAW_ = 0x,
-    // RAW_ = 0x,
-    // RAW_ = 0x,
-    // RAW_ = 0x,
-    // RAW_ = 0x,
-    // RAW_ = 0x,
-    ;
-
 const int nDiv = 0x2F,
           nMult = 0x2A,
           nSub = 0x2D,
@@ -36,6 +16,28 @@ const int nDiv = 0x2F,
           nDot = 0xD4,
           nTab = 0x09,
           nBackspace = 0x7F;
+
+const int NA = 0x1B;
+
+int AHK_LEFT_SHIFT = KEY_LEFT_ALT,
+    AHK_LEFT_ALT = KEY_LEFT_SHIFT,
+    AHK_B = KEY_CAPS_LOCK,
+    AHK_SPACE = KEY_F13,
+    KEY_PHI = KEY_F24,
+    KEY_DELTA = KEY_F23,
+    RAW_K = 0xE,
+    RAW_CAPS = 0x39,
+    RAW_SPACE = 0x2C,
+    KEY_ = 0x00
+    // RAW_L = 0x2F,
+    // RAW_ = 0x,
+    // RAW_ = 0x,
+    // RAW_ = 0x,
+    // RAW_ = 0x,
+    // RAW_ = 0x,
+    // RAW_ = 0x,
+    // RAW_ = 0x,
+    ;
 
 const uint8_t RAW_LEFT_CTRL = 0x67,
               RAW_LEFT_SHIFT = 0x68,

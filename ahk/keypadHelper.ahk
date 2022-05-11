@@ -2,10 +2,9 @@
 
 A_MaxHotkeysPerInterval := 1000
 RegularKeyboard := GetKeyState("ScrollLock", "T")
+MouseMode := false
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DIRECT KEY MAPS
-
-CapsLock::k
 PrintScreen::CapsLock
 Pause::CapsLock
 
@@ -13,7 +12,10 @@ Pause::CapsLock
     global RegularKeyboard := !RegularKeyboard
 }
 
-; F13::Space
+Enter & Space::AltTab
+; Space & Enter::ShiftAltTab
+; Space up::Send("{Space}")
+; F13::Spacex
 
 ; LAlt::LShift 
 ; RAlt::RShift
@@ -25,15 +27,14 @@ Pause::CapsLock
 -::Send("{Blind}{Shift down}-{Shift up}")
 #HotIf
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; has thumb keypads??
-#HotIf !RegularKeyboard
-b::F24
-k::b
-[::F18
-]::F19
-\::F20
-; Space::Shift
-#HotIf
+Offset := 20
+; #HotIf MouseMode
+
+; *e::MouseMove(0, -Offset, 0, "R")
+; *d::MouseMove(0, Offset, 0, "R")
+; *f::MouseMove(Offset, 0, 0, "R")
+; *s::MouseMove(-Offset, 0, 0, "R")
+; #HotIf
 
 ; #HotIf RegularKeyboard
 ; #HotIf
@@ -42,13 +43,30 @@ k::b
 ;     refresh()
 ; }
 
+;;;;;;; pageup & pagedn for specialty
+F14::F2
+F15::Send(" ^b")
+
+;keypad mouse scroll
+F21::Scroll("WU", "F21")
+F22::Scroll("WD", "F22")
+
+*F21::Scroll("WU", "F21")
+*F22::Scroll("WD", "F22")
+F17::!Left
+F18::LButton
+; !F18::!Left
+F19::RButton
+; !F19::!Right
+F20::MButton
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Enter combos
 Enter & o::Return
 Enter & p::^a
 Enter & [::^x
-Enter & ]::Return
+Enter & F18::Return
 
-Enter & `;::^v
+Enter & b::^v
 Enter & '::^c
 
 Enter & .::^s
@@ -66,7 +84,7 @@ Enter & w::Home
 
 Enter & i::Up
 Enter & l::Right
-Enter & b::Down
+Enter & k::Down
 Enter & j::Left
 Enter & o::End
 Enter & u::Home
@@ -79,36 +97,47 @@ Enter::Send("{Enter}")
 ; Tab::Send("{Tab}")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; phi
-; #HotIf GetKeyState("F24") and !GetKeyState("F23")
-; #HotIf
+#HotIf GetKeyState("F24") 
+;and !GetKeyState("F23")
+y::`
+; u::]
+i::[
+o::]
+p::\
+h::-
+j::=
+k::;
+l::'
+n::Enter
+m::/
 
-; #HotIf GetKeyState("Shift")
-; F24 & y::]
-; F24 & u::Send("{}}")
-; F24 & i::Send("{)}")
-; #HotIf
+3::^f
+7::^s
 
-; right
+e::Up
+d::Down
+s::Left
+f::Right
+w::Home
+r::End
+t::PgUp
+g::PgDn
+;tion keys
+F11::KeyHistory()
+F12::Refresh()
+F8::Send("{Volume_Mute}")
+F9::Send("{Volume_Down}")
+F10::Send("{Volume_Up}")
+F6::ChangeBrightness( -3 ) ; decrease brightness
+F7::ChangeBrightness( 3 ) ; increase brightness
+LShift::MouseNotMouse()
+V::MouseNotMouse()
 
-F24 & 7::^s
-F24 & 8::return
-F24 & 9::return
-F24 & 0::return
+#HotIf
 
-F24 & y::[
-F24 & u::+[ 
-F24 & i::+9
-F24 & o::+=
-
-F24 & h::*
-F24 & j::=
-F24 & b::;
-F24 & l::+'
-
-F24 & n::-
-F24 & m::+/
-F24 & ,::,
-F24 & .::.
+; F24 & 8::return
+; F24 & 9::return
+; F24 & 0::return
 
 ; left
 
@@ -119,38 +148,20 @@ F24 & .::.
 ; F24 & w::Send("{Blind}{Home}")
 ; F24 & r::Send("{Blind}{End}")
 
-F24 & e::Up
-F24 & d::Down
-F24 & s::Left
-F24 & f::Right
-F24 & w::Home
-F24 & r::End
-
-; function keys
-
-F24 & F11::KeyHistory()
-F24 & F12::Refresh()
-
-F24 & F8::Send("{Volume_Mute}")
-F24 & F9::Send("{Volume_Down}")
-F24 & F10::Send("{Volume_Up}")
-
-F24 & F6::ChangeBrightness( -3 ) ; decrease brightness
-F24 & F7::ChangeBrightness( 3 ) ; increase brightness
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; delta
 ; #HotIf GetKeyState("F23") and !GetKeyState("F24")
 ; #HotIf
 ;right
 
-F23 & y::]
+F23 & y::`
 F23 & u::+]
 F23 & i::+0
 F23 & o::-
+F23 & p::+\
 
 F23 & h::/
 F23 & j::=
-F23 & b::+;
+F23 & k::+;
 F23 & l::'
 
 F23 & n::+=
@@ -159,6 +170,7 @@ F23 & ,::+,
 F23 & .::+.
 
 ;left
+F23 & q::F1
 
 F23 & e::Send("{Blind}^+{Up}")
 F23 & d::Send("{Blind}^+{Down}")
@@ -167,13 +179,18 @@ F23 & f::Send("{Blind}^+{Right}")
 F23 & w::Send("{Blind}^+{Home}")
 F23 & r::Send("{Blind}^+{End}")
 
-;keypad mouse scroll
-F21::Scroll("WU", "F21")
-F22::Scroll("WD", "F22")
-
-F18::LButton
-F19::RButton
-F20::MButton
+F23 & 1::F1
+F23 & 2::F2
+F23 & 3::F3
+F23 & 4::F4
+F23 & 5::F5
+F23 & 6::F6
+F23 & 7::F7
+F23 & 8::F8
+F23 & 9::F9
+F23 & 0::F10
+F23 & -::F11
+F23 & =::F12
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Functions
 ChangeBrightness(change)
@@ -189,6 +206,7 @@ ChangeBrightness(change)
 
 GetCurrentBrightness()
 {
+
     For property in ComObjGet( "winmgmts:\\.\root\WMI" ).ExecQuery( "SELECT * FROM WmiMonitorBrightness" )
         currentBrightness := property.CurrentBrightness	
 
@@ -213,11 +231,14 @@ Refresh()
 Scroll(dir, key)
 {
     Click(dir)
-    Sleep(120)
+    Sleep(2)
     While GetKeyState(key) { 
         Click(dir)
-        Sleep(30)
+        Sleep(2)
     }
 
 }
 
+MouseNotMouse() {
+    global MouseMode := !MouseMode
+}
