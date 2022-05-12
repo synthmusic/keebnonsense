@@ -160,9 +160,22 @@ void downup(int key, bool down)
 
     if (down)
     {
-        if (key == KEY_PHI)
+        if (key == KEY_DELTA)
         {
-            layerPhi = true;
+            layerDelta = true;
+            downup(KEY_F13, true);
+            downup(KEY_F13, false);
+            downup(KEY_LEFT_SHIFT, true);
+            downup(KEY_LEFT_SHIFT, false);
+        }
+        else if (key == KEY_PHI)
+        {
+            layerDelta = false;
+            downup(KEY_F14, true);
+            downup(KEY_F14, false);
+
+            downup(KEY_LEFT_SHIFT, true);
+            downup(KEY_LEFT_SHIFT, false);
         }
         // Serial.print(sincePressed);
         // sincePressed = 0;
@@ -170,11 +183,6 @@ void downup(int key, bool down)
     }
     else
     {
-        if (key == KEY_PHI)
-        {
-            layerPhi = false;
-        }
-        // delay(5);
         Keyboard.release(key);
     }
 }
@@ -270,22 +278,22 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
         : k == nBackspace ? downup(KEY_LEFT_ALT, KEY_F4, d)
 
         : k == n7   ? downup(KEY_DELTA, d)
-        : k == n8   ? downup(KEY_LEFT_CTRL, d)
+        : k == n8   ? downup(KEY_PHI, d)
         : k == n9   ? downup(d)
         : k == nSub ? downup(d)
 
         : k == n4   ? downup(KEY_BACKSPACE, d)
-        : k == n5   ? downup(KEY_PHI, d)
+        : k == n5   ? downup(KEY_ESC, d)
         : k == n6   ? downup(d)
         : k == nAdd ? downup(KEY_SPACE, d)
 
         : k == n1     ? downup(KEY_TAB, d)
-        : k == n2     ? downup(KEY_ESC, d)
+        : k == n2     ? downup(KEY_RIGHT_CTRL, d)
         : k == n3     ? downup(KEY_ENTER, d)
-        : k == nEnter ? downup(d)
+        : k == nEnter ? downup(KEY_LEFT_ALT, d)
 
         : k == n0   ? downup(KEY_DELETE, d)
-        : k == nDot ? downup(KEY_LEFT_ALT, d)
+        : k == nDot ? downup(d)
 
                     : void(0);
     }
@@ -295,22 +303,22 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
         k == nTab         ? downup(d)
         : k == nDiv       ? downup(d)
         : k == nMult      ? downup(d)
-        : k == nBackspace ? downup(d)
+        : k == nBackspace ? downup(KEY_BACKSPACE, d)
 
         : k == n7   ? downup(d)
         : k == n8   ? downup(d)
-        : k == n9   ? downup(KEY_LEFT_CTRL, d)
+        : k == n9   ? downup(KEY_DELTA, d)
         : k == nSub ? downup(KEY_PHI, d)
 
         : k == n4   ? downup(d)
         : k == n5   ? downup(d)
-        : k == n6   ? downup(KEY_DELTA, d)
+        : k == n6   ? downup(KEY_ENTER, d)
         : k == nAdd ? downup(KEY_SPACE, d)
 
         : k == n1     ? downup(KEY_LEFT_GUI, KEY_L, d)
-        : k == n2     ? downup(KEY_LEFT_CTRL, KEY_Z, d)
-        : k == n3     ? downup(KEY_ENTER, d)
-        : k == nEnter ? downup(KEY_BACKSPACE, d)
+        : k == n2     ? downup(d)
+        : k == n3     ? downup(KEY_LEFT_CTRL, d)
+        : k == nEnter ? downup(KEY_LEFT_CTRL, KEY_Z, d)
 
         : k == n0   ? downup(KEY_LEFT_ALT, d)
         : k == nDot ? downup(d)
@@ -355,6 +363,8 @@ void OnRawPress(uint8_t keycode, KeyboardController kb, int kbNum, bool down)
         keyboard_last_leds = keyboard_leds;
         keyboard1.LEDS(keyboard_leds);
     }
+    int keycode_ = (0xF000 | keycode);
+
     int out =
         keycode == 103         ? KEY_LEFT_CTRL
         : keycode == 104       ? KEY_LEFT_SHIFT
@@ -365,50 +375,49 @@ void OnRawPress(uint8_t keycode, KeyboardController kb, int kbNum, bool down)
         : keycode == 109       ? KEY_RIGHT_ALT
         : keycode == 110       ? KEY_RIGHT_GUI
         : keycode == RAW_SPACE ? KEY_LEFT_SHIFT
-        // : keycode == RAW_K     ? KEY_B
-        // : keycode == RAW_CAPS  ? KEY_K
-        : keycode == 0x33 ? KEY_B
+        : keycode == 0x33      ? KEY_B
 
-        // //alt left
-        //         : keycode == 0x2E ? KEY_F17
-        // //scrollup
-        //         : keycode == 0x2A ? KEY_F21
-        // //middle b
-        //         : keycode == 0x4A ? KEY_F20
-
-        // //left b
         : keycode == 0x38 ? KEY_F18
-        // //scrolldown
-        //         : keycode == 0x31 ? KEY_F22
-        // //right b
-        //         : keycode == 0x4D ? KEY_F19
 
         : keycode == 0x4B ? KEY_F21
         : keycode == 0x4E ? KEY_F22
                           : 0;
-    // todo: use rawsend
 
-    if (layerPhi)
+    if (layerDelta)
     {
-        int phi =
+        int delta =
             // yuiop
-            keycode == 0x1C   ? KEY_TILDE
-            : keycode == 0x18 ? KEY_BLANK
-            : keycode == 0x0C ? KEY_LEFT_BRACE
-            : keycode == 0x12 ? KEY_RIGHT_BRACE
-            : keycode == 0x13 ? KEY_BACKSLASH
+            keycode_ == KEY_Y   ? KEY_TILDE
+            : keycode_ == KEY_U ? KEY_BLANK
+            : keycode_ == KEY_I ? KEY_LEFT_BRACE
+            : keycode_ == KEY_O ? KEY_RIGHT_BRACE
+            : keycode_ == KEY_P ? KEY_BACKSLASH
 
             // hjkl
-            : keycode == 0x0B ? KEY_MINUS
-            : keycode == 0x0D ? KEY_EQUAL
-            : keycode == 0x0E ? KEY_SEMICOLON
-            : keycode == 0x0F ? KEY_QUOTE
+            : keycode_ == KEY_H ? KEY_MINUS
+            : keycode_ == KEY_J ? KEY_EQUAL
+            : keycode_ == KEY_K ? KEY_SEMICOLON
+            : keycode_ == KEY_L ? KEY_QUOTE
             // nm
-            : keycode == 0x11 ? KEY_ENTER
-            : keycode == 0x10 ? KEY_SLASH
-                              : 0;
-        if (phi != 0)
-            out = phi;
+            : keycode_ == KEY_N ? KEY_PHI
+            : keycode_ == KEY_M ? KEY_SLASH
+
+            : keycode_ == KEY_1     ? KEY_F1
+            : keycode_ == KEY_2     ? KEY_F2
+            : keycode_ == KEY_3     ? KEY_F3
+            : keycode_ == KEY_4     ? KEY_F4
+            : keycode_ == KEY_5     ? KEY_F5
+            : keycode_ == KEY_6     ? KEY_F6
+            : keycode_ == KEY_7     ? KEY_F7
+            : keycode_ == KEY_8     ? KEY_F8
+            : keycode_ == KEY_9     ? KEY_F9
+            : keycode_ == KEY_0     ? KEY_F10
+            : keycode_ == KEY_MINUS ? KEY_F11
+            : keycode_ == KEY_EQUAL ? KEY_F12
+
+                                    : 0;
+        if (delta != 0)
+            out = delta;
     }
 
     if (out == 0)
@@ -416,14 +425,11 @@ void OnRawPress(uint8_t keycode, KeyboardController kb, int kbNum, bool down)
         // Serial.print("out ");
         // ShowOutPress(keycode, keyboard1);
         out = (0xF000 | keycode);
-        // down ? Keyboard.press(0xF000 | keycode)
-        //      : Keyboard.release(0xF000 | keycode);
     }
-    // else
-    // {
-    Serial.print(keycode);
+    Serial.printf("%x, %x, %x, %x, ", KEY_M & 0xFF, KEY_M, keycode, keycode_);
+    Serial.println();
+
     downup(out, down);
-    // }
 }
 
 void RawSend()
