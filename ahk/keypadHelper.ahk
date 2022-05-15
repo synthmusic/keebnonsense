@@ -4,6 +4,7 @@ A_MaxHotkeysPerInterval := 1000
 RegularKeyboard := GetKeyState("ScrollLock", "T")
 MouseMode := false
 LayerDelta := false
+LayerPhi := false
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DIRECT KEY MAPS
 ; PrintScreen::CapsLock
@@ -46,11 +47,11 @@ Offset := 20
 
 ;;;;;;; pageup & pagedn for specialty
 F13::{
-    ChangeLayer("Delta")
+    ChangeLayer("Alpha")
 }
 
 F14::{
-    ChangeLayer("Standard")
+    ChangeLayer("Delta")
 }
 
 F15::{
@@ -58,11 +59,11 @@ F15::{
 }
 
 ;keypad mouse scroll
-F21::Scroll("WU", "F21")
-F22::Scroll("WD", "F22")
+F20::Scroll("WU", "F20")
+F21::Scroll("WD", "F21")
 
-*F21::Scroll("WU", "F21")
-*F22::Scroll("WD", "F22")
+*F20::Scroll("WU", "F20")
+*F21::Scroll("WD", "F21")
 ;F17::!Left
 ;F18::LButton
 ; !F18::!Left
@@ -100,7 +101,11 @@ Enter & o::End
 Enter & u::Home
 
 Enter & Backspace::Delete
+
+Esc & f::^f
+
 Enter::Send("{Enter}")
+Esc::Send("{Esc}")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Tab Combos
 ; Tab & a::^a
@@ -156,16 +161,16 @@ v::^v
 
 #HotIf
 
-F24 & 3::^f
-F24 & 7::^s
-F24 & F6::ChangeBrightness( -3 ) ; decrease brightness
-F24 & F7::ChangeBrightness( 3 ) ; increase brightness
-F24 & F8::Send("{Volume_Mute}")
-F24 & F9::Send("{Volume_Down}")
-F24 & F10::Send("{Volume_Up}")
+F22 & 3::^f
+F22 & 7::^s
+F22 & F6::ChangeBrightness( -3 ) ; decrease brightness
+F22 & F7::ChangeBrightness( 3 ) ; increase brightness
+F22 & F8::Send("{Volume_Mute}")
+F22 & F9::Send("{Volume_Down}")
+F22 & F10::Send("{Volume_Up}")
 
-F24 & F11::KeyHistory()
-F24 & F12::Refresh()
+F22 & F11::KeyHistory()
+F22 & F12::Refresh()
 
 ;F24 & LShift::MouseNotMouse()
 ;'F24 & V::MouseNotMouse()
@@ -253,11 +258,18 @@ ChangeLayer(layerName) {
     if (layerName == "Delta") {
         SetScrollLockState(true)
         global LayerDelta := true
+        global LayerPhi := false
 
-    }else { 
-        SetScrollLockState(false)
+    }else if (layerName == "Phi") { 
+        SetScrollLockState(true)
         global LayerDelta := false
+        global LayerPhi := true
 
     }
+    else { 
+        SetScrollLockState(false)
+        global LayerDelta := false
+        global LayerPhi := false
 
+    }
 }
