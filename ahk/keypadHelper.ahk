@@ -45,7 +45,7 @@ Offset := 20
 ;     refresh()
 ; }
 
-;;;;;;; pageup & pagedn for specialty
+;;;;;;; pageup & pagedn for specialty   
 F13::{
     ChangeLayer("Alpha")
 }
@@ -273,3 +273,4 @@ ChangeLayer(layerName) {
 
     }
 }
+
