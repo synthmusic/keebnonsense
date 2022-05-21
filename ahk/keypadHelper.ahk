@@ -74,7 +74,7 @@ F21::Scroll("WD", "F21")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Enter combos
 Enter & o::Return
 Enter & p::^a
-Enter & [::^x
+Enter & SC01A::^x
 
 Enter & b::^v
 Enter & '::^c
@@ -117,34 +117,34 @@ Esc::Send("{Esc}")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; phi
 #HotIf LayerDelta
 
-y::`
-; u::]
-i::[
-o::]
-p::\
-h::-
-j::=
-k::;
-l::'
-n::{
-}
-m::/
+; y::`
+; ; u::]
+; i::[
+; o::]
+; p::\
+; h::-
+; j::=
+; k::;
+; l::'
+; n::{
+; }
+; m::/
 
-e::Up
-d::Down
-s::Left
-f::Right
-w::Home
-r::End
-t::PgUp
-g::PgDn
+; e::Up
+; d::Down
+; s::Left
+; f::Right
+; w::Home
+; r::End
+; t::PgUp
+; g::PgDn
 ; ;tion keys
 
-a::^a
-z::^z
-x::^x
-c::^c
-v::^v
+;a::^a
+;z::^z
+;x::^x
+;c::^c
+;v::^v
 
 ;1::F1
 ;2::F2
@@ -161,6 +161,7 @@ v::^v
 
 #HotIf
 
+F22 & 1::F1
 F22 & 3::^f
 F22 & 7::^s
 F22 & F6::ChangeBrightness( -3 ) ; decrease brightness
@@ -204,8 +205,7 @@ F22 & F12::Refresh()
 ; F23 & r::Send("{Blind}^+{End}")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Functions
-ChangeBrightness(change)
-{
+ChangeBrightness(change) {
     brightness := Min(Max(GetCurrentBrightness() + change, 0), 100)
     timeout := 1
 

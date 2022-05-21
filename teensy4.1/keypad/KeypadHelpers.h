@@ -1,14 +1,16 @@
-struct keyStateInfo
+#include <LinkedList.h>
+
+class KeyStateInfo
 {
+public:
     int Key;
     int KeyboardNum;
     int LastDown;
     int LastUp;
     bool Down;
     int KeyState;
+    bool exec();
 };
-
-typedef struct keyStateInfo KeyStateInfo;
 
 const int KS_DOWN = 0,
           KS_UP = 1;
@@ -17,22 +19,34 @@ const int KS_TIME_CHORD = 10,
           KS_TIME_HOLD = 120,
           KS_TIME_DOUBLE_TAP_GAP = 40;
 
-KeyStateInfo RecentKeyStates[20];
-int RecentKeyStatesLength = 0;
-int LastAnyKeyChangedTime = 0;
+LinkedList<KeyStateInfo *> RecentKeyStates = LinkedList<KeyStateInfo *>();
 
+// new
+KeyStateInfo *ksi = new KeyStateInfo();
+
+int LastAnyKeyChangedTime = 0;
 int now;
 int anyKeyChangedEllapsed;
 
-// for (int i = 0; i < 0xff; i++)
-// {
-//     lastKeyDownTime[i] = 0;
-//     lastKeyUpTime[i] = 0;
-//     keyState[i] = 0;
-// }
+void addSimpleInstance()
+{
+    now = millis();
+    ksi->Down = true;
+    ksi->Key = 0x22;
+    ksi->KeyboardNum = 1;
+    ksi->KeyState = KS_DOWN;
+    ksi->LastDown = now;
+    ksi->LastUp = now;
+    RecentKeyStates.add(ksi);
+}
+
+void KeyThings()
+{
+}
 
 void KeyStateChange(int key, int keyboard, bool down)
 {
+
     now = millis();
 
     anyKeyChangedEllapsed = now - LastAnyKeyChangedTime;
@@ -40,54 +54,22 @@ void KeyStateChange(int key, int keyboard, bool down)
     if (anyKeyChangedEllapsed < 2)
         anyKeyChangedEllapsed = 1;
 
+    for (int i = 0; i < RecentKeyStates.size(); i++)
+    {
+    }
+
     if (down)
     {
-        // new
-        KeyStateInfo ksi;
-        ksi.Down = down;
-        ksi.Key = key;
-        ksi.KeyboardNum = keyboard;
-        ksi.KeyState = KS_DOWN;
-        ksi.LastDown = now;
-        ksi.LastUp = now;
-
-        RecentKeyStates[RecentKeyStatesLength] = ksi;
-        RecentKeyStatesLength++;
     }
     else // up
     {
-        int i = --RecentKeyStatesLength;
-
-        while (true)
-        {
-            if (RecentKeyStates[i].Key == key || i <= 0)
-                break;
-            i--;
-        }
-        while (i < RecentKeyStatesLength)
-        {
-            RecentKeyStates[i] = RecentKeyStates[i + 1];
-            Serial.println(i);
-            i++;
-        }
     }
-    down ? Serial.printf("d:  %i", anyKeyChangedEllapsed)
-         : Serial.printf("        u:  %i", anyKeyChangedEllapsed);
 
+    down ? Serial.printf("    d:  %i", anyKeyChangedEllapsed)
+         : Serial.printf("          u:  %i", anyKeyChangedEllapsed);
     Serial.println();
+
     LastAnyKeyChangedTime = now;
-}
-
-int KeyTimeSinceLast()
-{
-    for (int i = 0; i < RecentKeyStatesLength; i++)
-    {
-    }
-    return 0;
-}
-
-void KeyThings()
-{
 }
 
 const int AHK_LEFT_SHIFT = KEY_LEFT_ALT,

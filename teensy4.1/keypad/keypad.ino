@@ -14,7 +14,7 @@ uint8_t keyboard_modifiers = 0; // try to keep a reasonable value
 
 uint8_t mouse1_last_buttons = 0;
 
-bool layer = KEY_ALPHA;
+int layer = KEY_ALPHA;
 
 USBHost myusb;
 USBHub hub1(myusb);
@@ -78,6 +78,8 @@ void setup()
     keyboard7.attachRelease(Release7);
     keyboard8.attachPress(Press8);
     keyboard8.attachRelease(Release8);
+
+    addSimpleInstance();
 }
 
 // void ShowPress1(int key) { ShowOnPress(key, keyboard1); }
@@ -115,29 +117,29 @@ void downup(int key, bool down)
             layer = KEY_DELTA;
             downup(AHK_DELTA, true);
             downup(AHK_DELTA, false);
-            delay(5);
-            downup(KEY_LEFT_SHIFT, true);
-            downup(KEY_LEFT_SHIFT, false);
+            // delay(5);
+            // downup(KEY_LEFT_SHIFT, true);
+            // downup(KEY_LEFT_SHIFT, false);
         }
         else if (key == KEY_PHI)
         {
             layer = KEY_PHI;
             downup(AHK_PHI, true);
             downup(AHK_PHI, false);
-            delay(5);
+            // delay(5);
 
-            downup(KEY_LEFT_SHIFT, true);
-            downup(KEY_LEFT_SHIFT, false);
+            // downup(KEY_LEFT_SHIFT, true);
+            // downup(KEY_LEFT_SHIFT, false);
         }
         else if (key == KEY_ALPHA)
         {
             layer = KEY_ALPHA;
             downup(AHK_ALPHA, true);
             downup(AHK_ALPHA, false);
-            delay(5);
+            // delay(5);
 
-            downup(KEY_LEFT_SHIFT, true);
-            downup(KEY_LEFT_SHIFT, false);
+            // downup(KEY_LEFT_SHIFT, true);
+            // downup(KEY_LEFT_SHIFT, false);
         }
         // Serial.print(sincePressed);
         // sincePressed = 0;
@@ -207,7 +209,7 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
         : k == nBackspace ? downup(KEY_LEFT_ALT, KEY_F4, d)
 
         : k == n7   ? downup(KEY_DELTA, d)
-        : k == n8   ? downup(KEY_PHI, d)
+        : k == n8   ? downup(KEY_DELTA, d)
         : k == n9   ? downup(d)
         : k == nSub ? downup(d)
 
@@ -236,7 +238,7 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
 
         : k == n7   ? downup(d)
         : k == n8   ? downup(d)
-        : k == n9   ? downup(KEY_DELTA, d)
+        : k == n9   ? downup(KEY_ALPHA, d)
         : k == nSub ? downup(KEY_ALPHA, d)
 
         : k == n4   ? downup(d)
@@ -283,19 +285,17 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
 void OnRawPress(uint8_t keycode, KeyboardController kb, int kbNum, bool down)
 {
     int key = (0xF000 | keycode);
-
-    // Serial.print("RAW IN raw1 0x");
-    // Serial.print(keycode, HEX);
-    // Serial.print(" Modifiers: ");
-    // Serial.println(keyboard_modifiers, HEX);
+    KeyStateChange(keycode, kbNum, down);
+    Serial.print("RAW IN raw1 0x");
+    Serial.print(keycode, HEX);
+    Serial.print(" Modifiers: ");
+    Serial.println(keyboard_modifiers, HEX);
     if (keyboard_leds != keyboard_last_leds)
     {
         // Serial.printf("New LEDS: %x\n", keyboard_leds);
         keyboard_last_leds = keyboard_leds;
         keyboard1.LEDS(keyboard_leds);
     }
-
-    KeyStateChange(key, kbNum, down);
 
     int out =
         keycode == 103         ? KEY_LEFT_CTRL
@@ -313,53 +313,86 @@ void OnRawPress(uint8_t keycode, KeyboardController kb, int kbNum, bool down)
         : keycode == 0x4E ? KEY_F21
                           : 0;
 
-    if (layer == KEY_DELTA)
-    {
-        int delta =
-            // yuiop
-            key == KEY_Y   ? KEY_TILDE
-            : key == KEY_U ? KEY_BLANK
-            : key == KEY_I ? KEY_LEFT_BRACE
-            : key == KEY_O ? KEY_RIGHT_BRACE
-            : key == KEY_P ? KEY_BACKSLASH
-
-            // hjkl
-            : key == KEY_H ? KEY_MINUS
-            : key == KEY_J ? KEY_EQUAL
-            : key == KEY_K ? KEY_SEMICOLON
-            : key == KEY_L ? KEY_QUOTE
-            // nm
-            : key == KEY_N ? KEY_PHI
-            : key == KEY_M ? KEY_SLASH
-
-            : key == KEY_1     ? KEY_F1
-            : key == KEY_2     ? KEY_F2
-            : key == KEY_3     ? KEY_F3
-            : key == KEY_4     ? KEY_F4
-            : key == KEY_5     ? KEY_F5
-            : key == KEY_6     ? KEY_F6
-            : key == KEY_7     ? KEY_F7
-            : key == KEY_8     ? KEY_F8
-            : key == KEY_9     ? KEY_F9
-            : key == KEY_0     ? KEY_F10
-            : key == KEY_MINUS ? KEY_F11
-            : key == KEY_EQUAL ? KEY_F12
-
-                               : 0;
-        if (delta != 0)
-            out = delta;
-    }
-
     if (out == 0)
     {
         // Serial.print("out ");
         // ShowOutPress(keycode, keyboard1);
         out = (0xF000 | keycode);
     }
+
+    // Serial.printf("%x, %x, %x, %x, ", layer, KEY_DELTA, keycode, key);
+    // Serial.println();
+    if (layer == KEY_DELTA)
+    {
+        // Serial.printf("%x, %x, %x, %x, ", KEY_Q & 0xFF, KEY_Q, keycode, key);
+        // Serial.println();
+
+        // qwert
+        key == KEY_Q   ? downup(KEY_LEFT_SHIFT, KEY_TILDE, down)
+        : key == KEY_W ? downup(KEY_HOME, down)
+        : key == KEY_E ? downup(KEY_UP_ARROW, down)
+        : key == KEY_R ? downup(KEY_END, down)
+        : key == KEY_T ? downup(KEY_LEFT_SHIFT, KEY_EQUAL, down)
+        // asdfg
+
+        : key == KEY_A ? downup(KEY_TILDE, down)
+        : key == KEY_S ? downup(KEY_LEFT_ARROW, down)
+        : key == KEY_D ? downup(KEY_DOWN_ARROW, down)
+        : key == KEY_F ? downup(KEY_RIGHT_ARROW, down)
+        : key == KEY_G ? downup(KEY_MINUS, down)
+
+        // zxcv
+        : key == KEY_Z ? downup(KEY_BACKSLASH, down)
+        // : key == KEY_X ? downup(KEY_, down)
+        : key == KEY_C ? downup(KEY_RIGHT_BRACE, down)
+        : key == KEY_V ? downup(KEY_LEFT_BRACE, down)
+
+        // yuiop
+        // : key == KEY_Y ? downup(KEY_TILDE, down)
+        : key == KEY_U ? downup(KEY_LEFT_SHIFT, KEY_COMMA, down)
+        : key == KEY_I ? downup(KEY_LEFT_SHIFT, KEY_LEFT_BRACE, down)
+        : key == KEY_O ? downup(KEY_LEFT_SHIFT, KEY_RIGHT_BRACE, down)
+        : key == KEY_P ? downup(KEY_LEFT_SHIFT, KEY_BACKSLASH, down)
+
+        // hjkl;
+        : key == KEY_H         ? downup(KEY_LEFT_SHIFT, KEY_QUOTE, down)
+        : key == KEY_J         ? downup(KEY_EQUAL, down)
+        : key == KEY_K         ? downup(KEY_SEMICOLON, down)
+        : key == KEY_L         ? downup(KEY_LEFT_SHIFT, KEY_SEMICOLON, down)
+        : key == KEY_SEMICOLON ? downup(KEY_LEFT_SHIFT, KEY_SLASH, down)
+
+        // nm
+        : key == KEY_N ? downup(KEY_QUOTE, down)
+        : key == KEY_M ? downup(KEY_LEFT_SHIFT, KEY_PERIOD, down)
+
+        : key == KEY_1     ? downup(KEY_LEFT_SHIFT, KEY_1, down)
+        : key == KEY_2     ? downup(KEY_LEFT_SHIFT, KEY_2, down)
+        : key == KEY_3     ? downup(KEY_LEFT_SHIFT, KEY_3, down)
+        : key == KEY_4     ? downup(KEY_LEFT_SHIFT, KEY_4, down)
+        : key == KEY_5     ? downup(KEY_LEFT_SHIFT, KEY_5, down)
+        : key == KEY_6     ? downup(KEY_LEFT_SHIFT, KEY_6, down)
+        : key == KEY_7     ? downup(KEY_LEFT_SHIFT, KEY_7, down)
+        : key == KEY_8     ? downup(KEY_LEFT_SHIFT, KEY_8, down)
+        : key == KEY_9     ? downup(KEY_LEFT_SHIFT, KEY_9, down)
+        : key == KEY_0     ? downup(KEY_LEFT_SHIFT, KEY_0, down)
+        : key == KEY_MINUS ? downup(KEY_LEFT_SHIFT, KEY_MINUS, down)
+        : key == KEY_EQUAL ? downup(KEY_LEFT_SHIFT, KEY_EQUAL, down)
+
+                           : downup(out, down);
+    }
+    else if (layer == KEY_PHI)
+    {
+        downup(out, down);
+    }
+    else
+    {
+        downup(out, down);
+    }
+
+    // Serial.print("out ");
+    // ShowOutPress(keycode, keyboard1);
     // Serial.printf("%x, %x, %x, %x, ", KEY_M & 0xFF, KEY_M, keycode, key);
     // Serial.println();
-
-    downup(out, down);
 }
 
 void RawSend()
