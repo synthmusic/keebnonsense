@@ -1,3 +1,4 @@
+#include TapHoldManager.ahk
 #SingleInstance Force
 
 A_MaxHotkeysPerInterval := 1000
@@ -5,6 +6,13 @@ RegularKeyboard := GetKeyState("ScrollLock", "T")
 MouseMode := false
 LayerDelta := false
 LayerPhi := false
+
+thm := TapHoldManager(80, 200, 2)
+thm.Add("q", logKey)
+
+logKey(isHold, taps, state){
+	MsgBox (isHold ? "HOLD" : "TAP") "`nTaps: " taps "`nState: " state "`n"
+}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DIRECT KEY MAPS
 ; PrintScreen::CapsLock
