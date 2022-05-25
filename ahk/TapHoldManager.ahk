@@ -3,8 +3,9 @@
 
 class TapHoldManager {
 	Bindings := Map()
+	rollingKeys := Array()
 	
-	__New(tapTime := -1, holdTime := -1, maxTaps := -1, prefixes := "$", window := ""){
+	__New(tapTime := -1, holdTime := -1, maxTaps := -1, prefixes := "$", window := "", isRollingKey := true){
 		if (tapTime == -1)
 			tapTime := 150
 		if (holdTime == -1)
@@ -14,6 +15,7 @@ class TapHoldManager {
 		this.maxTaps := maxTaps
 		this.prefixes := prefixes
 		this.window := window
+		this.isRollingKey := isRollingKey
 	}
 	
 	Add(keyName, callback, tapTime := -1, holdTime := -1, maxTaps := -1, prefixes := -1, window := ""){    ; Add hotkey
@@ -34,6 +36,34 @@ class TapHoldManager {
 	ResumeHotkey(keyName) { ; resume previously deactivated hotkey
 		this.Bindings[keyName].SetHotState(1)
 	}
+
+	AddRollingKeys(csvString) {
+		; there is only one hotkey per key, so check first and don't override
+		; if a thm key is added later, it will override this
+		; todo: deal with remove, pause and resume above
+		for str in StrSplit(csvString, ",") {
+			this.rollingKeys.Push(Trim(str))
+		}
+
+		for key in this.rollingKeys {
+			if (!this.Bindings.Has(key)) {
+				Hotkey this.prefixes key, this.RollingKeyDown.Bind(this, key)
+			}
+		}
+	}
+
+	RollingKeyDown(key := "", thisHotKey := "") {
+		this.RolledKeysUp(key)
+		Send "{" key "}" 
+	}
+
+	RolledKeysUp(thisHotKey := "") {
+		for key, keyMgr in this.Bindings {
+			if (keyMgr.isRollingKey && key != thisHotKey) {
+				keyMgr.KeyUp(key)
+			}
+		}
+	}
 }
 
 /*
@@ -49,8 +79,8 @@ class KeyManager {
 	
 	holdActive := 0				; A hold was activated and we are waiting for the release
 	
-	__New(manager, keyName, Callback, tapTime := -1, holdTime := -1, maxTaps := -1, prefixes := -1, window := ""){
-		; this.manager := manager
+	__New(manager, keyName, Callback, tapTime := -1, holdTime := -1, maxTaps := -1, prefixes := -1, window := "", isRollingKey := true){
+		this.manager := manager
 		this.Callback := Callback
 		if (tapTime == -1){
 			this.tapTime := manager.tapTime
@@ -83,6 +113,7 @@ class KeyManager {
 		}
 		
 		this.keyName := keyName
+		this.isRollingKey := isRollingKey
 		
 		this.HoldWatcherBound := this.HoldWatcher.Bind(this)
 		this.TapWatcherBound := this.TapWatcher.Bind(this)
@@ -141,6 +172,8 @@ class KeyManager {
 	KeyDown(key){
 		if (this.state == 1)
 			return	; Suppress Repeats
+		if (this.isRollingKey)
+			this.manager.RolledKeysUp(this.keyName)		
 		this.state := 1
 
 		this.sequence++
@@ -148,17 +181,21 @@ class KeyManager {
 	}
 	
 	KeyUp(key){
+		if (this.state == 0)
+			return	; Suppress if rolling keys already released it
 		this.state := 0
 
 		this.SetHoldWatcherState(0)
 		if (this.holdActive){
 			; fn := this.FireCallback.Bind(this, this.sequence, 0)
-			SetTimer this.FireCallbackBound.Bind(this.sequence, 0), -1
+			; SetTimer this.FireCallbackBound.Bind(this.sequence, 0), -1
+			this.FireCallback(this.sequence, 0)
 			this.ResetSequence()
 		} else {
 			if (this.maxTaps > 0 && this.Sequence == this.maxTaps){
 				; fn := this.FireCallback.Bind(this, this.sequence, -1)
-				SetTimer this.FireCallbackBound.Bind(this.sequence, -1), -1
+				; SetTimer this.FireCallbackBound.Bind(this.sequence, -1), -1
+				this.FireCallback(this.sequence, -1)
 				this.ResetSequence()
 			} else {
 				this.SetTapWatcherState(1)
@@ -191,7 +228,8 @@ class KeyManager {
 			; Got to end of tapTime after first press, and still held.
 			; HOLD PRESS
 			; fn := this.FireCallback.Bind(this, this.sequence, 1)
-			SetTimer this.FireCallbackBound.Bind(this.sequence, 1), -1
+			; SetTimer this.FireCallbackBound.Bind(this.sequence, 1), -1
+			this.FireCallback(this.sequence, 1)
 			this.holdActive := 1
 		}
 	}
@@ -201,7 +239,8 @@ class KeyManager {
 		if (this.sequence > 0 && this.state == 0){
 			; TAP
 			; fn := this.FireCallback.Bind(this, this.sequence)
-			SetTimer this.FireCallbackBound.Bind(this.sequence), -1
+			; SetTimer this.FireCallbackBound.Bind(this.sequence), -1
+			this.(this.sequence), -1
 			this.ResetSequence()
 		}
 	}

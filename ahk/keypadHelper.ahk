@@ -7,12 +7,28 @@ MouseMode := false
 LayerDelta := false
 LayerPhi := false
 
-thm := TapHoldManager(80, 200, 2)
-thm.Add("q", logKey)
+thm := TapHoldManager(1, 180, 1)
+holdShiftList := ("1,2,3,4,5,6,7,8,9,0,q,w,e,r,t,y,u,i,o,p,a,s,d,f,g,h,j,k,l,b,z,x,c,v,n,m")
+
+for str in StrSplit(holdShiftList, ",") {
+    thm.Add(str, holdShift.Bind(str))
+}
+
+holdShift(key, isHold, taps, state) {
+    if (isHold && state) {
+        Send "+" key
+    }
+    if (!isHold) {
+        Send key
+    }
+}
+
+thm.AddRollingKeys("1,2,3,4,5,6,7,8,9,0,q,w,e,r,t,y,u,i,o,p,a,s,d,f,g,h,j,k,l,b,z,x,c,v,n,m,Space,Enter")
 
 logKey(isHold, taps, state){
-	MsgBox (isHold ? "HOLD" : "TAP") "`nTaps: " taps "`nState: " state "`n"
+	Send (isHold ? "HOLD" : "TAP") " Taps: " taps " State: " state "`n"
 }
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DIRECT KEY MAPS
 ; PrintScreen::CapsLock
@@ -22,15 +38,6 @@ Pause::CapsLock
     global RegularKeyboard := !RegularKeyboard
 }
 
-Enter & Space::AltTab
-; Space & Enter::ShiftAltTab
-; Space up::Send("{Space}")
-; F15::Space
-
-; LAlt::LShift 
-; RAlt::RShift
-; LShift::LAlt
-; RShift::RAlt
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; CAPS LOCK
 #HotIf GetKeyState("CapsLock", "T")
@@ -100,6 +107,10 @@ Enter & d::Down
 Enter & s::Left
 Enter & r::End
 Enter & w::Home
+Enter & t::PgUp
+Enter & g::PgDn
+
+Enter & v::AltTab
 
 Enter & i::Up
 Enter & l::Right
@@ -109,6 +120,7 @@ Enter & o::End
 Enter & u::Home
 
 Enter & Backspace::Delete
+Enter & Space::AltTab
 
 Esc & f::^f
 

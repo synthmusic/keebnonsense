@@ -213,7 +213,7 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
         : k == n9   ? downup(d)
         : k == nSub ? downup(d)
 
-        : k == n4   ? downup(KEY_BACKSPACE, d)
+        : k == n4   ? downup(KEY_ENTER, d)
         : k == n5   ? downup(KEY_ESC, d)
         : k == n6   ? downup(KEY_ALPHA, d)
         : k == nAdd ? downup(KEY_SPACE, d)
@@ -243,7 +243,7 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
 
         : k == n4   ? downup(d)
         : k == n5   ? downup(KEY_PHI, d)
-        : k == n6   ? downup(KEY_ENTER, d)
+        : k == n6   ? downup(KEY_BACKSPACE, d)
         : k == nAdd ? downup(KEY_SPACE, d)
 
         : k == n1     ? downup(KEY_LEFT_GUI, KEY_L, d)
