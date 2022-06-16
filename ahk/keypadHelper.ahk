@@ -7,28 +7,72 @@ MouseMode := false
 LayerDelta := false
 LayerPhi := false
 
-thm := TapHoldManager(1, 180, 1)
-holdShiftList := ("1,2,3,4,5,6,7,8,9,0,q,w,e,r,t,y,u,i,o,p,a,s,d,f,g,h,j,k,l,b,z,x,c,v,n,m")
+; `;::Send("{Blind}b")
+; *b::F22
 
-for str in StrSplit(holdShiftList, ",") {
+KeyWaitCombo(Options:="")
+{
+    ih := InputHook(Options)
+    ; if !InStr(Options, "V")
+    ;     ih.VisibleNonText := false
+    ih.KeyOpt("{All}", "E")  ; End
+    ; Exclude the modifiers
+    ih.KeyOpt("{LCtrl}{RCtrl}{LAlt}{RAlt}{LWin}{RWin}", "-E")
+    ih.Start()
+    ih.Wait()
+    Send("r{LShift up}")
+    return ih.EndMods . ih.EndKey  ; Return a string like <^<+Esc
+}
+
+; LShift::{
+;     Send("{Blind}{LShift down}")
+;     KeyWaitCombo("V L1")
+; }
+
+; LShift up::{
+
+; }
+
+thm := TapHoldManager(0, 150, 1, "$*")
+holdShiftList := ("1 2 3 4 5 6 7 8 9 0 q w e r t y u i o p a s d f g h j k l b z x c v n m , . /")
+
+for str in StrSplit(holdShiftList, " ") {
     thm.Add(str, holdShift.Bind(str))
 }
 
-holdShift(key, isHold, taps, state) {
-    if (isHold && state) {
-        Send "+" key
-    }
-    if (!isHold) {
-        Send key
+; thm.Add("Space", longSpace)
+
+longSpace(isHold, taps, state) {
+    if (isHold) {
+        if (state) {
+            thm.SetRollingKeysActive(false)
+            Send("{Blind}{LShift down}")
+        } else {
+        Send("{Blind}{LShift up}")
+            thm.SetRollingKeysActive(true)
+        }
+    } else {
+        Send("{Blind}{Space}")
     }
 }
 
-thm.AddRollingKeys("1,2,3,4,5,6,7,8,9,0,q,w,e,r,t,y,u,i,o,p,a,s,d,f,g,h,j,k,l,b,z,x,c,v,n,m,Space,Enter")
+holdShift(key, isHold, taps, state) {
+        ; Send(key isHold taps state "`n")
+
+    if (isHold && state)  {
+        ; if (taps == 1){
+            Send "{blind}+" key
+        ; }
+    } else if (!isHold) {
+        Send "{blind}" key
+    }
+}
+
+thm.AddRollingKeys("1 2 3 4 5 6 7 8 9 0 q w e r t y u i o p a s d f g h j k l b z x c v n m , . / Space Enter")
 
 logKey(isHold, taps, state){
 	Send (isHold ? "HOLD" : "TAP") " Taps: " taps " State: " state "`n"
 }
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DIRECT KEY MAPS
 ; PrintScreen::CapsLock
@@ -37,7 +81,6 @@ Pause::CapsLock
 ^PrintScreen::{
     global RegularKeyboard := !RegularKeyboard
 }
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; CAPS LOCK
 #HotIf GetKeyState("CapsLock", "T")
@@ -60,7 +103,7 @@ Offset := 20
 ;     refresh()
 ; }
 
-;;;;;;; pageup & pagedn for specialty   
+;;;;;;; pageup & pagedn for specialty
 F13::{
     ChangeLayer("Alpha")
 }
@@ -88,9 +131,11 @@ F21::Scroll("WD", "F21")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Enter combos
 Enter & o::Return
+Enter & |::^a
 Enter & p::^a
 Enter & SC01A::^x
 
+Enter & ?::^v
 Enter & b::^v
 Enter & '::^c
 
@@ -122,10 +167,8 @@ Enter & u::Home
 Enter & Backspace::Delete
 Enter & Space::AltTab
 
-Esc & f::^f
-
 Enter::Send("{Enter}")
-Esc::Send("{Esc}")
+; Esc::Send("{Esc}")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Tab Combos
 ; Tab & a::^a
@@ -194,7 +237,7 @@ F22 & F11::KeyHistory()
 F22 & F12::Refresh()
 
 ;F24 & LShift::MouseNotMouse()
-;'F24 & V::MouseNotMouse()
+;F24 & V::MouseNotMouse()
 
 ; F24 & 8::return
 ; F24 & 9::return
@@ -202,12 +245,19 @@ F22 & F12::Refresh()
 
 ; left
 
-; F24 & e::Send("{Blind}{Up}")
-; F24 & d::Send("{Blind}{Down}")
-; F24 & s::Send("{Blind}{Left}")
-; F24 & f::Send("{Blind}{Right}")
-; F24 & w::Send("{Blind}{Home}")
-; F24 & r::Send("{Blind}{End}")
+F22 & e::Send("{Blind}{Up}")
+F22 & d::Send("{Blind}{Down}")
+F22 & s::Send("{Blind}{Left}")
+F22 & f::Send("{Blind}{Right}")
+F22 & w::Send("{Blind}{Home}")
+F22 & r::Send("{Blind}{End}")
+
+F22 & i::Send("{Blind}{{}}")
+
+F22 & h::Send("{Blind}`"")
+F22 & j::Send("{Blind}=")
+F22 & k::Send("{Blind};")
+F22 & l::Send("{Blind}:")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; delta
 ; #HotIf GetKeyState("F23") and !GetKeyState("F24")
@@ -239,7 +289,7 @@ GetCurrentBrightness()
 {
 
     For property in ComObjGet( "winmgmts:\\.\root\WMI" ).ExecQuery( "SELECT * FROM WmiMonitorBrightness" )
-        currentBrightness := property.CurrentBrightness	
+        currentBrightness := property.CurrentBrightness
 
     return currentBrightness
 }
@@ -251,7 +301,7 @@ ShowWindowData()
     MsgBox "The primary is at " X " , " Y " - " W " x " H
 }
 
-Refresh() 
+Refresh()
 {
     ; this reloads the script
     Send("^s")
@@ -263,7 +313,7 @@ Scroll(dir, key)
 {
     Click(dir)
     Sleep(2)
-    While GetKeyState(key) { 
+    While GetKeyState(key) {
         Click(dir)
         Sleep(2)
     }
@@ -280,13 +330,13 @@ ChangeLayer(layerName) {
         global LayerDelta := true
         global LayerPhi := false
 
-    }else if (layerName == "Phi") { 
+    }else if (layerName == "Phi") {
         SetScrollLockState(true)
         global LayerDelta := false
         global LayerPhi := true
 
     }
-    else { 
+    else {
         SetScrollLockState(false)
         global LayerDelta := false
         global LayerPhi := false
@@ -294,3 +344,11 @@ ChangeLayer(layerName) {
     }
 }
 
+Repeat(key, str, initialWait := 120, repeatWait := 30) {
+    Send(str)
+    Sleep(initialWait)
+    While GetKeyState(key) {
+        Send(str)
+        Sleep(repeatWait)
+    }
+}

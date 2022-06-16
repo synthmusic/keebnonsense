@@ -1,6 +1,8 @@
+#SingleInstance Force
+
 ; test()
-do := DisplayObject()
-do.test()
+; do := DisplayObject()
+; do.test()
 
 ; m := Msg()
 ; m.add("hi")

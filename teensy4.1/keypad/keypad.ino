@@ -188,7 +188,6 @@ void downup(int key1, int key2, int key3, bool down)
         downup(key1, down);
     }
 }
-
 int k = 0;
 int d = 0;
 
@@ -204,21 +203,21 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
     else if (kbNum == ROOT_K + 1) // LEFT
     {
         k == nTab         ? downup(KEY_LEFT_GUI, d)
-        : k == nDiv       ? downup(KEY_LEFT_CTRL, KEY_T, d)
-        : k == nMult      ? downup(KEY_LEFT_CTRL, KEY_F4, d)
-        : k == nBackspace ? downup(KEY_LEFT_ALT, KEY_F4, d)
+        : k == nDiv       ? downup(d)
+        : k == nMult      ? downup(KEY_LEFT_ALT, KEY_F4, d)
+        : k == nBackspace ? downup(KEY_LEFT_CTRL, KEY_F4, d)
 
         : k == n7   ? downup(KEY_DELTA, d)
         : k == n8   ? downup(KEY_DELTA, d)
         : k == n9   ? downup(d)
-        : k == nSub ? downup(d)
+        : k == nSub ? downup(KEY_LEFT_CTRL, KEY_T, d)
 
         : k == n4   ? downup(KEY_ENTER, d)
-        : k == n5   ? downup(KEY_ESC, d)
+        : k == n5   ? downup(KEY_TAB, d)
         : k == n6   ? downup(KEY_ALPHA, d)
         : k == nAdd ? downup(KEY_SPACE, d)
 
-        : k == n1     ? downup(KEY_TAB, d)
+        : k == n1     ? downup(KEY_ESC, d)
         : k == n2     ? downup(KEY_RIGHT_CTRL, d)
         : k == n3     ? downup(KEY_ENTER, d)
         : k == nEnter ? downup(KEY_LEFT_ALT, d)
