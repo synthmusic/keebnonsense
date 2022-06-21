@@ -8,7 +8,8 @@ LayerDelta := false
 LayerPhi := false
 
 ; `;::Send("{Blind}b")
-; *b::F22
+b::F22
+`;::b
 
 KeyWaitCombo(Options:="")
 {
@@ -34,21 +35,34 @@ KeyWaitCombo(Options:="")
 ; }
 
 thm := TapHoldManager(0, 150, 1, "$*")
-holdShiftList := ("1 2 3 4 5 6 7 8 9 0 q w e r t y u i o p a s d f g h j k l b z x c v n m , . /")
+holdShiftList := ("1 2 3 4 5 6 7 8 9 0 - = q w e r t y u i o p a s d f g h j k l z x c v n m , . / `[ ] \ '")
+
+thm.Add(";", thmSemi)
+
+thmSemi(isHold, taps, state) {
+    if (isHold && state)  {
+        ; if (taps == 1){
+            Send "{blind}+b"
+        ; }
+    } else if (!isHold) {
+        Send "{blind}b"
+    }
+}
 
 for str in StrSplit(holdShiftList, " ") {
     thm.Add(str, holdShift.Bind(str))
 }
 
-; thm.Add("Space", longSpace)
+thm.Add("Space", longSpace)
 
 longSpace(isHold, taps, state) {
     if (isHold) {
         if (state) {
-            thm.SetRollingKeysActive(false)
-            Send("{Blind}{LShift down}")
+            ; thm.SetRollingKeysActive(false)
+            Send("{Space down}")
+             ; Repeat("{Space}", " ")
         } else {
-        Send("{Blind}{LShift up}")
+        Send("{Space up}")
             thm.SetRollingKeysActive(true)
         }
     } else {
@@ -68,7 +82,7 @@ holdShift(key, isHold, taps, state) {
     }
 }
 
-thm.AddRollingKeys("1 2 3 4 5 6 7 8 9 0 q w e r t y u i o p a s d f g h j k l b z x c v n m , . / Space Enter")
+thm.AddRollingKeys("1 2 3 4 5 6 7 8 9 0 q w e r t y u i o p a s d f g h j k l z x c v n m , . / [ ] \ ' - = Space Enter")
 
 logKey(isHold, taps, state){
 	Send (isHold ? "HOLD" : "TAP") " Taps: " taps " State: " state "`n"
@@ -130,12 +144,13 @@ F21::Scroll("WD", "F21")
 ;F20::MButton
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Enter combos
-Enter & o::Return
+Enter & o::^a
 Enter & |::^a
 Enter & p::^a
 Enter & SC01A::^x
 
-Enter & ?::^v
+Enter & ?::^
+Enter & `;::^v
 Enter & b::^v
 Enter & '::^c
 
@@ -155,14 +170,14 @@ Enter & w::Home
 Enter & t::PgUp
 Enter & g::PgDn
 
-Enter & v::AltTab
+aEnter & v::AltTab
 
-Enter & i::Up
-Enter & l::Right
-Enter & k::Down
-Enter & j::Left
-Enter & o::End
-Enter & u::Home
+; Enter & i::Up
+; Enter & l::Right
+; Enter & k::Down
+; Enter & j::Left
+; Enter & o::End
+; Enter & u::Home
 
 Enter & Backspace::Delete
 Enter & Space::AltTab
@@ -224,40 +239,71 @@ Enter::Send("{Enter}")
 
 #HotIf
 
-F22 & 1::F1
-F22 & 3::^f
-F22 & 7::^s
-F22 & F6::ChangeBrightness( -3 ) ; decrease brightness
-F22 & F7::ChangeBrightness( 3 ) ; increase brightness
-F22 & F8::Send("{Volume_Mute}")
-F22 & F9::Send("{Volume_Down}")
-F22 & F10::Send("{Volume_Up}")
+#HotIf GetKeyState("F22")
+    1::F1
+    3::^f
+    7::^s
+    F6::ChangeBrightness( -3 ) ; decrease brightness
+    F7::ChangeBrightness( 3 ) ; increase brightness
+    F8::Send("{Volume_Mute}")
+    F9::Send("{Volume_Down}")
+    F10::Send("{Volume_Up}")
 
-F22 & F11::KeyHistory()
-F22 & F12::Refresh()
+    F11::{
+        KeyHistory(500)
+        KeyHistory()
+        }
+    F12::Refresh()
 
-;F24 & LShift::MouseNotMouse()
-;F24 & V::MouseNotMouse()
+    e::Send("{Blind}{Up}")
+    d::Send("{Blind}{Down}")
+    s::Send("{Blind}{Left}")
+    f::Send("{Blind}{Right}")
+    w::Send("{Blind}{Home}")
+    r::Send("{Blind}{End}")
 
-; F24 & 8::return
-; F24 & 9::return
-; F24 & 0::return
+    i::Send("{Blind}{{}}")
 
-; left
+    h::Send("{Blind}`"")
+    j::Send("{Blind}=")
+    k::Send("{Blind};")
+    l::Send("{Blind}:")
+#HotIf
 
-F22 & e::Send("{Blind}{Up}")
-F22 & d::Send("{Blind}{Down}")
-F22 & s::Send("{Blind}{Left}")
-F22 & f::Send("{Blind}{Right}")
-F22 & w::Send("{Blind}{Home}")
-F22 & r::Send("{Blind}{End}")
+; F22 & 1::F1
+; F22 & 3::^f
+; F22 & 7::^s
+; F22 & F6::ChangeBrightness( -3 ) ; decrease brightness
+; F22 & F7::ChangeBrightness( 3 ) ; increase brightness
+; F22 & F8::Send("{Volume_Mute}")
+; F22 & F9::Send("{Volume_Down}")
+; F22 & F10::Send("{Volume_Up}")
 
-F22 & i::Send("{Blind}{{}}")
+; F22 & F11::KeyHistory()
+; F22 & F12::Refresh()
 
-F22 & h::Send("{Blind}`"")
-F22 & j::Send("{Blind}=")
-F22 & k::Send("{Blind};")
-F22 & l::Send("{Blind}:")
+; ;F24 & LShift::MouseNotMouse()
+; ;F24 & V::MouseNotMouse()
+
+; ; F24 & 8::return
+; ; F24 & 9::return
+; ; F24 & 0::return
+
+; ; left
+
+; F22 & e::Send("{Blind}{Up}")
+; F22 & d::Send("{Blind}{Down}")
+; F22 & s::Send("{Blind}{Left}")
+; F22 & f::Send("{Blind}{Right}")
+; F22 & w::Send("{Blind}{Home}")
+; F22 & r::Send("{Blind}{End}")
+
+; F22 & i::Send("{Blind}{{}}")
+
+; F22 & h::Send("{Blind}`"")
+; F22 & j::Send("{Blind}=")
+; F22 & k::Send("{Blind};")
+; F22 & l::Send("{Blind}:")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; delta
 ; #HotIf GetKeyState("F23") and !GetKeyState("F24")

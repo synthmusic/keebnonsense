@@ -202,56 +202,56 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
     }
     else if (kbNum == ROOT_K + 1) // LEFT
     {
-        k == nTab         ? downup(KEY_LEFT_GUI, d)
-        : k == nDiv       ? downup(d)
-        : k == nMult      ? downup(KEY_LEFT_ALT, KEY_F4, d)
-        : k == nBackspace ? downup(KEY_LEFT_CTRL, KEY_F4, d)
+        k == nTab         ? downup(KEY_LEFT_GUI, d)          // EZ center mid
+        : k == nDiv       ? downup(d)                        // macro
+        : k == nMult      ? downup(KEY_LEFT_ALT, KEY_F4, d)  // macro
+        : k == nBackspace ? downup(KEY_LEFT_CTRL, KEY_F4, d) // macro
 
-        : k == n7   ? downup(KEY_DELTA, d)
-        : k == n8   ? downup(KEY_DELTA, d)
-        : k == n9   ? downup(d)
-        : k == nSub ? downup(KEY_LEFT_CTRL, KEY_T, d)
+        : k == n7   ? downup(KEY_DELTA, d)            // EZ center bottom
+        : k == n8   ? downup(KEY_ESC, d)              // EZ reg
+        : k == n9   ? downup(d)                       // EZ reg
+        : k == nSub ? downup(KEY_LEFT_CTRL, KEY_T, d) // macro
 
-        : k == n4   ? downup(KEY_ENTER, d)
-        : k == n5   ? downup(KEY_TAB, d)
-        : k == n6   ? downup(KEY_ALPHA, d)
-        : k == nAdd ? downup(KEY_SPACE, d)
+        : k == n4   ? downup(KEY_ENTER, d)      // EZ long
+        : k == n5   ? downup(d)                 // dead
+        : k == n6   ? downup(KEY_RIGHT_CTRL, d) // EZ reg
+        : k == nAdd ? downup(KEY_SPACE, d)      // macro
 
-        : k == n1     ? downup(KEY_ESC, d)
-        : k == n2     ? downup(KEY_RIGHT_CTRL, d)
-        : k == n3     ? downup(KEY_ENTER, d)
-        : k == nEnter ? downup(KEY_LEFT_ALT, d)
+        : k == n1     ? downup(d)               // dead
+        : k == n2     ? downup(KEY_TAB, d)      // EZ long
+        : k == n3     ? downup(KEY_ENTER, d)    // EZ reg
+        : k == nEnter ? downup(KEY_LEFT_ALT, d) // macro
 
-        : k == n0   ? downup(KEY_DELETE, d)
-        : k == nDot ? downup(d)
+        : k == n0   ? downup(d) // dead
+        : k == nDot ? downup(d) // macro
 
                     : void(0);
     }
     else if (kbNum == ROOT_K + 2) // RIGHT
 
     {
-        k == nTab         ? downup(d)
-        : k == nDiv       ? downup(d)
-        : k == nMult      ? downup(d)
-        : k == nBackspace ? downup(KEY_BACKSPACE, d)
+        k == nTab         ? downup(d) // macro
+        : k == nDiv       ? downup(d) // macro
+        : k == nMult      ? downup(d) // macro
+        : k == nBackspace ? downup(d) // EZ center mid
 
-        : k == n7   ? downup(d)
-        : k == n8   ? downup(d)
-        : k == n9   ? downup(KEY_ALPHA, d)
-        : k == nSub ? downup(KEY_ALPHA, d)
+        : k == n7   ? downup(d)                // macro
+        : k == n8   ? downup(d)                // EZ reg
+        : k == n9   ? downup(KEY_LEFT_CTRL, d) // EZ reg
+        : k == nSub ? downup(KEY_ALPHA, d)     // EZ center bottom
 
-        : k == n4   ? downup(d)
-        : k == n5   ? downup(KEY_PHI, d)
-        : k == n6   ? downup(KEY_BACKSPACE, d)
-        : k == nAdd ? downup(KEY_SPACE, d)
+        : k == n4   ? downup(d)                // macro
+        : k == n5   ? downup(KEY_LEFT_CTRL, d) // EZ reg
+        : k == n6   ? downup(d)                // dead
+        : k == nAdd ? downup(KEY_SPACE, d)     // EZ long
 
-        : k == n1     ? downup(KEY_LEFT_GUI, KEY_L, d)
-        : k == n2     ? downup(d)
-        : k == n3     ? downup(KEY_LEFT_CTRL, d)
-        : k == nEnter ? downup(KEY_LEFT_CTRL, KEY_Z, d)
+        : k == n1     ? downup(KEY_LEFT_GUI, KEY_L, d) // macro
+        : k == n2     ? downup(d)                      // EZ reg
+        : k == n3     ? downup(KEY_BACKSPACE, d)       // EZ long
+        : k == nEnter ? downup(d)                      // dead
 
-        : k == n0   ? downup(KEY_LEFT_ALT, d)
-        : k == nDot ? downup(d)
+        : k == n0   ? downup(KEY_LEFT_ALT, d) // macro
+        : k == nDot ? downup(d)               // dead
 
                     : void(0);
     }
@@ -306,7 +306,7 @@ void OnRawPress(uint8_t keycode, KeyboardController kb, int kbNum, bool down)
         : keycode == 109       ? KEY_RIGHT_ALT
         : keycode == 110       ? KEY_RIGHT_GUI
         : keycode == RAW_SPACE ? KEY_LEFT_SHIFT
-        : keycode == 0x33      ? KEY_B
+        // : keycode == 0x33      ? KEY_B
 
         : keycode == 0x4B ? KEY_F20
         : keycode == 0x4E ? KEY_F21
@@ -385,7 +385,9 @@ void OnRawPress(uint8_t keycode, KeyboardController kb, int kbNum, bool down)
     }
     else
     {
-        downup(out, down);
+
+        key == KEY_QUOTE ? downup(KEY_ENTER, down)
+                         : downup(out, down);
     }
 
     // Serial.print("out ");

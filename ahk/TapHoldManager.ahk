@@ -261,6 +261,9 @@ class KeyManager {
 
 	FireCallback(seq, state := -1){
 		; Send((state != -1) . seq . state . "`n")
-		this.Callback.Call(state != -1, seq, state)
+		cb := this.Callback.Bind(state != -1, seq, state)
+		SetTimer(cb, -1)
+		
+		; this.Callback.Call(state != -1, seq, state)
 	}
 }
