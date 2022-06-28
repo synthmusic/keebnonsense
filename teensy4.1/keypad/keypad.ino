@@ -80,6 +80,11 @@ void setup()
     keyboard8.attachRelease(Release8);
 
     addSimpleInstance();
+
+    downup(AHK_USE_TEENSY, true);
+    downup(AHK_USE_TEENSY, false);
+    downup(AHK_ALPHA, true);
+    downup(AHK_ALPHA, false);
 }
 
 // void ShowPress1(int key) { ShowOnPress(key, keyboard1); }
@@ -124,8 +129,8 @@ void downup(int key, bool down)
         else if (key == KEY_PHI)
         {
             layer = KEY_PHI;
-            downup(AHK_PHI, true);
-            downup(AHK_PHI, false);
+            // downup(AHK_PHI, true);
+            // downup(AHK_PHI, false);
             // delay(5);
 
             // downup(KEY_LEFT_SHIFT, true);
@@ -134,8 +139,8 @@ void downup(int key, bool down)
         else if (key == KEY_ALPHA)
         {
             layer = KEY_ALPHA;
-            downup(AHK_ALPHA, true);
-            downup(AHK_ALPHA, false);
+            // downup(AHK_ALPHA, true);
+            // downup(AHK_ALPHA, false);
             // delay(5);
 
             // downup(KEY_LEFT_SHIFT, true);
@@ -153,6 +158,11 @@ void downup(int key, bool down)
 
 void downup(int key1, int key2, bool down)
 {
+    downup2delay(key1, key2, down, false);
+}
+
+void downup2delay(int key1, int key2, bool down, bool modDelay)
+{
     if (down)
     {
         downup(key1, down);
@@ -164,6 +174,10 @@ void downup(int key1, int key2, bool down)
         delay(2);
         downup(key2, down);
         delay(2);
+        if (modDelay)
+        {
+            delay(8);
+        }
         downup(key1, down);
     }
 }
@@ -207,10 +221,10 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
         : k == nMult      ? downup(KEY_LEFT_ALT, KEY_F4, d)  // macro
         : k == nBackspace ? downup(KEY_LEFT_CTRL, KEY_F4, d) // macro
 
-        : k == n7   ? downup(KEY_DELTA, d)            // EZ center bottom
-        : k == n8   ? downup(KEY_ESC, d)              // EZ reg
-        : k == n9   ? downup(d)                       // EZ reg
-        : k == nSub ? downup(KEY_LEFT_CTRL, KEY_T, d) // macro
+        : k == n7   ? downup(KEY_DELTA, d)                        // EZ center bottom
+        : k == n8   ? downup(KEY_ESC, d)                          // EZ reg
+        : k == n9   ? downup(d)                                   // EZ reg
+        : k == nSub ? downup2delay(KEY_LEFT_CTRL, KEY_T, d, true) // macro
 
         : k == n4   ? downup(KEY_ENTER, d)      // EZ long
         : k == n5   ? downup(d)                 // dead
@@ -219,7 +233,7 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
 
         : k == n1     ? downup(d)               // dead
         : k == n2     ? downup(KEY_TAB, d)      // EZ long
-        : k == n3     ? downup(KEY_ENTER, d)    // EZ reg
+        : k == n3     ? downup(KEY_SPACE, d)    // EZ reg
         : k == nEnter ? downup(KEY_LEFT_ALT, d) // macro
 
         : k == n0   ? downup(d) // dead
@@ -235,10 +249,10 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
         : k == nMult      ? downup(d) // macro
         : k == nBackspace ? downup(d) // EZ center mid
 
-        : k == n7   ? downup(d)                // macro
-        : k == n8   ? downup(d)                // EZ reg
-        : k == n9   ? downup(KEY_LEFT_CTRL, d) // EZ reg
-        : k == nSub ? downup(KEY_ALPHA, d)     // EZ center bottom
+        : k == n7   ? downup(d)                                   // macro
+        : k == n8   ? downup(d)                                   // EZ reg
+        : k == n9   ? downup2delay(KEY_LEFT_CTRL, KEY_Z, d, true) // EZ reg
+        : k == nSub ? downup(KEY_ALPHA, d)                        // EZ center bottom
 
         : k == n4   ? downup(d)                // macro
         : k == n5   ? downup(KEY_LEFT_CTRL, d) // EZ reg
@@ -325,59 +339,61 @@ void OnRawPress(uint8_t keycode, KeyboardController kb, int kbNum, bool down)
     {
         // Serial.printf("%x, %x, %x, %x, ", KEY_Q & 0xFF, KEY_Q, keycode, key);
         // Serial.println();
+        /*
+                // qwert
+                key == KEY_Q   ? downup(KEY_LEFT_SHIFT, KEY_TILDE, down)
+                : key == KEY_W ? downup(KEY_HOME, down)
+                : key == KEY_E ? downup(KEY_UP_ARROW, down)
+                : key == KEY_R ? downup(KEY_END, down)
+                : key == KEY_T ? downup(KEY_LEFT_SHIFT, KEY_EQUAL, down)
+                // asdfg
 
-        // qwert
-        key == KEY_Q   ? downup(KEY_LEFT_SHIFT, KEY_TILDE, down)
-        : key == KEY_W ? downup(KEY_HOME, down)
-        : key == KEY_E ? downup(KEY_UP_ARROW, down)
-        : key == KEY_R ? downup(KEY_END, down)
-        : key == KEY_T ? downup(KEY_LEFT_SHIFT, KEY_EQUAL, down)
-        // asdfg
+                : key == KEY_A ? downup(KEY_TILDE, down)
+                : key == KEY_S ? downup(KEY_LEFT_ARROW, down)
+                : key == KEY_D ? downup(KEY_DOWN_ARROW, down)
+                : key == KEY_F ? downup(KEY_RIGHT_ARROW, down)
+                : key == KEY_G ? downup(KEY_MINUS, down)
 
-        : key == KEY_A ? downup(KEY_TILDE, down)
-        : key == KEY_S ? downup(KEY_LEFT_ARROW, down)
-        : key == KEY_D ? downup(KEY_DOWN_ARROW, down)
-        : key == KEY_F ? downup(KEY_RIGHT_ARROW, down)
-        : key == KEY_G ? downup(KEY_MINUS, down)
+                // zxcv
+                : key == KEY_Z ? downup(KEY_BACKSLASH, down)
+                // : key == KEY_X ? downup(KEY_, down)
+                : key == KEY_C ? downup(KEY_RIGHT_BRACE, down)
+                : key == KEY_V ? downup(KEY_LEFT_BRACE, down)
 
-        // zxcv
-        : key == KEY_Z ? downup(KEY_BACKSLASH, down)
-        // : key == KEY_X ? downup(KEY_, down)
-        : key == KEY_C ? downup(KEY_RIGHT_BRACE, down)
-        : key == KEY_V ? downup(KEY_LEFT_BRACE, down)
+                // yuiop
+                // : key == KEY_Y ? downup(KEY_TILDE, down)
+                : key == KEY_U ? downup(KEY_LEFT_SHIFT, KEY_COMMA, down)
+                : key == KEY_I ? downup(KEY_LEFT_SHIFT, KEY_LEFT_BRACE, down)
+                : key == KEY_O ? downup(KEY_LEFT_SHIFT, KEY_RIGHT_BRACE, down)
+                : key == KEY_P ? downup(KEY_LEFT_SHIFT, KEY_BACKSLASH, down)
 
-        // yuiop
-        // : key == KEY_Y ? downup(KEY_TILDE, down)
-        : key == KEY_U ? downup(KEY_LEFT_SHIFT, KEY_COMMA, down)
-        : key == KEY_I ? downup(KEY_LEFT_SHIFT, KEY_LEFT_BRACE, down)
-        : key == KEY_O ? downup(KEY_LEFT_SHIFT, KEY_RIGHT_BRACE, down)
-        : key == KEY_P ? downup(KEY_LEFT_SHIFT, KEY_BACKSLASH, down)
+                // hjkl;
+                : key == KEY_H         ? downup(KEY_LEFT_SHIFT, KEY_QUOTE, down)
+                : key == KEY_J         ? downup(KEY_EQUAL, down)
+                : key == KEY_K         ? downup(KEY_SEMICOLON, down)
+                : key == KEY_L         ? downup(KEY_LEFT_SHIFT, KEY_SEMICOLON, down)
+                : key == KEY_SEMICOLON ? downup(KEY_LEFT_SHIFT, KEY_SLASH, down)
 
-        // hjkl;
-        : key == KEY_H         ? downup(KEY_LEFT_SHIFT, KEY_QUOTE, down)
-        : key == KEY_J         ? downup(KEY_EQUAL, down)
-        : key == KEY_K         ? downup(KEY_SEMICOLON, down)
-        : key == KEY_L         ? downup(KEY_LEFT_SHIFT, KEY_SEMICOLON, down)
-        : key == KEY_SEMICOLON ? downup(KEY_LEFT_SHIFT, KEY_SLASH, down)
+                // nm
+                : key == KEY_N ? downup(KEY_QUOTE, down)
+                : key == KEY_M ? downup(KEY_LEFT_SHIFT, KEY_PERIOD, down)
 
-        // nm
-        : key == KEY_N ? downup(KEY_QUOTE, down)
-        : key == KEY_M ? downup(KEY_LEFT_SHIFT, KEY_PERIOD, down)
+                : key == KEY_1     ? downup(KEY_LEFT_SHIFT, KEY_1, down)
+                : key == KEY_2     ? downup(KEY_LEFT_SHIFT, KEY_2, down)
+                : key == KEY_3     ? downup(KEY_LEFT_SHIFT, KEY_3, down)
+                : key == KEY_4     ? downup(KEY_LEFT_SHIFT, KEY_4, down)
+                : key == KEY_5     ? downup(KEY_LEFT_SHIFT, KEY_5, down)
+                : key == KEY_6     ? downup(KEY_LEFT_SHIFT, KEY_6, down)
+                : key == KEY_7     ? downup(KEY_LEFT_SHIFT, KEY_7, down)
+                : key == KEY_8     ? downup(KEY_LEFT_SHIFT, KEY_8, down)
+                : key == KEY_9     ? downup(KEY_LEFT_SHIFT, KEY_9, down)
+                : key == KEY_0     ? downup(KEY_LEFT_SHIFT, KEY_0, down)
+                : key == KEY_MINUS ? downup(KEY_LEFT_SHIFT, KEY_MINUS, down)
+                : key == KEY_EQUAL ? downup(KEY_LEFT_SHIFT, KEY_EQUAL, down)
 
-        : key == KEY_1     ? downup(KEY_LEFT_SHIFT, KEY_1, down)
-        : key == KEY_2     ? downup(KEY_LEFT_SHIFT, KEY_2, down)
-        : key == KEY_3     ? downup(KEY_LEFT_SHIFT, KEY_3, down)
-        : key == KEY_4     ? downup(KEY_LEFT_SHIFT, KEY_4, down)
-        : key == KEY_5     ? downup(KEY_LEFT_SHIFT, KEY_5, down)
-        : key == KEY_6     ? downup(KEY_LEFT_SHIFT, KEY_6, down)
-        : key == KEY_7     ? downup(KEY_LEFT_SHIFT, KEY_7, down)
-        : key == KEY_8     ? downup(KEY_LEFT_SHIFT, KEY_8, down)
-        : key == KEY_9     ? downup(KEY_LEFT_SHIFT, KEY_9, down)
-        : key == KEY_0     ? downup(KEY_LEFT_SHIFT, KEY_0, down)
-        : key == KEY_MINUS ? downup(KEY_LEFT_SHIFT, KEY_MINUS, down)
-        : key == KEY_EQUAL ? downup(KEY_LEFT_SHIFT, KEY_EQUAL, down)
-
-                           : downup(out, down);
+                                   : downup(out, down);
+                                   */
+        downup(out, down);
     }
     else if (layer == KEY_PHI)
     {
@@ -386,8 +402,10 @@ void OnRawPress(uint8_t keycode, KeyboardController kb, int kbNum, bool down)
     else
     {
 
-        key == KEY_QUOTE ? downup(KEY_ENTER, down)
-                         : downup(out, down);
+        // key == KEY_QUOTE ? downup(KEY_ENTER, down)
+        // : key == KEY_SEMICOLON ? downup(KEY_B, down) // done in comp
+        //  : downup(out, down);
+        downup(out, down);
     }
 
     // Serial.print("out ");

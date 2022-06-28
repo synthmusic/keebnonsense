@@ -1,99 +1,130 @@
+; Setup
 #include TapHoldManager.ahk
 #SingleInstance Force
-
+Thread "interrupt", 0  ; Make all threads always-interruptible.
 A_MaxHotkeysPerInterval := 1000
-RegularKeyboard := GetKeyState("ScrollLock", "T")
-MouseMode := false
-LayerDelta := false
-LayerPhi := false
+KeyHistory(500)
+CoordMode "ToolTip", "Screen"
 
-; `;::Send("{Blind}b")
-b::F22
-`;::b
+;;;;;;;;;;;;;;;;;;;;;;;;; consts
+SINGLE_QUOTE := "sc028"
 
-KeyWaitCombo(Options:="")
-{
-    ih := InputHook(Options)
-    ; if !InStr(Options, "V")
-    ;     ih.VisibleNonText := false
-    ih.KeyOpt("{All}", "E")  ; End
-    ; Exclude the modifiers
-    ih.KeyOpt("{LCtrl}{RCtrl}{LAlt}{RAlt}{LWin}{RWin}", "-E")
-    ih.Start()
-    ih.Wait()
-    Send("r{LShift up}")
-    return ih.EndMods . ih.EndKey  ; Return a string like <^<+Esc
-}
+;;;;;;;;;;;;;;;;;;;;;;;;; "public" globals
+IsStandardKeyboard := true
 
-; LShift::{
-;     Send("{Blind}{LShift down}")
-;     KeyWaitCombo("V L1")
-; }
+;;;;;;;;;;;;;;;;;;;;;;;;; "private" globals
+HoldLayer := "Alpha"
 
-; LShift up::{
+;;;;;;;;;;;;;;;;;;;;;;;;; Keyboard setup
 
-; }
-
-thm := TapHoldManager(0, 150, 1, "$*")
-holdShiftList := ("1 2 3 4 5 6 7 8 9 0 - = q w e r t y u i o p a s d f g h j k l z x c v n m , . / `[ ] \ '")
-
-thm.Add(";", thmSemi)
-
-thmSemi(isHold, taps, state) {
-    if (isHold && state)  {
-        ; if (taps == 1){
-            Send "{blind}+b"
-        ; }
-    } else if (!isHold) {
-        Send "{blind}b"
-    }
-}
+thm := TapHoldManager(0, 160, 1, "$*")
+holdShiftList := "`` 1 2 3 4 5 6 7 8 9 0 - ="
+                . " q w e r t y u i o p [ ]"
+                . " a s d f g h j k l `;"
+                . " z x c v n m , . /"
 
 for str in StrSplit(holdShiftList, " ") {
     thm.Add(str, holdShift.Bind(str))
 }
 
-thm.Add("Space", longSpace)
-
-longSpace(isHold, taps, state) {
-    if (isHold) {
-        if (state) {
-            ; thm.SetRollingKeysActive(false)
-            Send("{Space down}")
-             ; Repeat("{Space}", " ")
-        } else {
-        Send("{Space up}")
-            thm.SetRollingKeysActive(true)
-        }
-    } else {
-        Send("{Blind}{Space}")
-    }
-}
+thm.AddRollingKeys(holdShiftList . " Enter")
 
 holdShift(key, isHold, taps, state) {
-        ; Send(key isHold taps state "`n")
+    sendKey := ""
+    switch GetLayer()
+    {
+        case "Delta":
+            sendKey := MapDeltaKeys(key)
+        case "DeltaDelta":
+            sendKey := MapDeltaDeltaKeys(key)
+        case "EntPair":
+            sendKey := MapEntPairKeys(key)
+        default:
+            sendKey := MapAlphaKeys(key)
+    }
+
+    ; TempToolTip(key . "`n" . sendKey . "`n" . (state ? "down" : "up") . " " . (isHold ? "held" : "tap"))
 
     if (isHold && state)  {
-        ; if (taps == 1){
-            Send "{blind}+" key
-        ; }
+        Send "{Blind}+" . sendKey
     } else if (!isHold) {
-        Send "{blind}" key
+        Send "{Blind}" . sendKey
     }
 }
 
-thm.AddRollingKeys("1 2 3 4 5 6 7 8 9 0 q w e r t y u i o p a s d f g h j k l z x c v n m , . / [ ] \ ' - = Space Enter")
-
-logKey(isHold, taps, state){
-	Send (isHold ? "HOLD" : "TAP") " Taps: " taps " State: " state "`n"
+thm.Add("CapsLock", thmCapsLock)
+thmCapsLock(isHold, taps, state) {
+    ; global HoldLayer := "Delta"
+    if (isHold && !state)  {
+        Send ("{CapsLock}")
+    } else if (!isHold) {
+        SetLayer "Delta"
+    }
 }
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DIRECT KEY MAPS
-; PrintScreen::CapsLock
-Pause::CapsLock
 
-^PrintScreen::{
-    global RegularKeyboard := !RegularKeyboard
+
+thm.Add("b", thmB)
+thmB(isHold, taps, state) {
+    TempToolTip("b`n" . (state ? "down" : "up") . " " . (isHold ? "held: " : "tap: ") . taps)
+    if (isHold) {
+        SetLayer "Alpha"
+    } else if (!isHold) {
+        SetLayer "Delta"
+    }
+}
+
+thm.Add(";", thmSemi)
+thmSemi(isHold, taps, state) {
+    TempToolTip("b`n" . (state ? "down" : "up") . " " . (isHold ? "held: " : "tap: ") . taps)
+    if (!isHold) {
+        Send "{}"
+    }
+}
+
+sendSpace := Send.Bind(" ")
+thm.Add("Space", thmSpace)
+thmSpace(isHold, taps, state) {
+    ; TempToolTip("b`n" . (state ? "down" : "up") . " " . (isHold ? "held" : "tap"))
+    if (isHold)  {
+        if (state) {
+            Send("{Space down}")
+        } else {
+            Send("{Space up}")
+        }
+    } else if (!isHold) {
+        Send(" ")
+    }
+}
+
+;;;;;;;;;;;;;;;;;;;;;;;;; layer related functions
+
+SetLayer(name) {
+    if (name == "Alpha"){
+        ToolTip("A", 100, 100, 2)
+        SetTimer () => ToolTip("",,,2), -4000
+    } else if (name == "Delta") {
+        ToolTip("SHIFTED`nSHIFTED", 25, 25, 2)
+    }
+
+    global HoldLayer := name
+}
+
+GetLayer() {
+    ; global TrackLayer := "Delta"
+    layer := HoldLayer
+
+    ; return LayerDelta || GetKeyState("Enter", "P")||
+    if GetKeyState("Enter", "P") || GetKeyState(SINGLE_QUOTE, "P") {
+        layer := "EntPair"
+    }
+
+    if GetKeyState("b", "P") {
+        layer := "DeltaDelta"
+    }
+
+    ; TempToolTip(layer)
+    return layer
 }
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; CAPS LOCK
@@ -101,7 +132,139 @@ Pause::CapsLock
 -::Send("{Blind}{Shift down}-{Shift up}")
 #HotIf
 
-Offset := 20
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ALL
+\::CapsLock
+
+PrintScreen::
+^+BackSpace::{
+    global IsStandardKeyboard := !IsStandardKeyboard
+}
+
+F16::{
+    global IsStandardKeyboard := false
+}
+
+=::{
+    global HoldLayer := "Alpha"
+}
+
+F14::{
+    global HoldLayer := "Delta"
+}
+
+F20::Scroll("WU", "F20")
+F21::Scroll("WD", "F21")
+
+*F20::Scroll("WU", "F20")
+*F21::Scroll("WD", "F21")
+; thm.Add("Space", longSpace)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Alpha
+MapAlphaKeys(key) {
+    switch key
+    {
+        case ";": return "b"
+        ; case "q": return "{Esc}"
+        ; case "``": return "q"
+        default: return key
+    }
+}
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Delta
+
+MapDeltaKeys(key) {
+    switch key
+    {
+        case "q": return "``"
+
+        case "y": return "\"
+        case "u": return "-"
+        case "i": return "["
+        case "o": return "]"
+
+        case "j": return "="
+        case "k": return ";"
+        case "l": return "'"
+
+        case "n": return "/"
+
+        case "1": return "{F1}"
+        case "2": return "{F2}"
+        case "3": return "{F3}"
+        case "4": return "{F4}"
+        case "5": return "{F5}"
+        case "6": return "{F6}"
+        case "7": return "{F7}"
+        case "8": return "{F8}"
+        case "9": return "{F9}"
+        case "0": return "{F10}"
+        case "[": return "{F11}"
+        case "]": return "{F12}"
+        default: return key
+    }
+}
+
+#HotIf GetLayer() == "Delta"
+
+    *a::Send("{Blind}{LShift Down}{LCtrl Down}")
+    *a Up::Send("{Blind}{LShift Up}{LCtrl Up}")
+
+    e::Up
+    d::Down
+    s::Left
+    f::Right
+    w::Home
+    r::End
+    t::PgUp
+    g::PgDn
+#HotIf
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Ent Pair
+
+MapEntPairKeys(key) {
+    switch key
+    {
+        case "o": return "^s"
+        case "p": return "^x"
+        case "l": return "^v"
+        case ";": return "^c"
+        case ".": return "^z"
+        case "/": return "^a"
+        default: return key
+    }
+}
+
+#HotIf GetLayer() == "EntPair"
+    sc028 & v::AltTab
+    Enter & v::AltTab
+    sc028 & Space::AltTab
+    Enter & Space::AltTab
+
+    sc028 & Backspace::Delete
+    Enter & Backspace::Delete
+#HotIf
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Delta Delta
+
+MapDeltaDeltaKeys(key) {
+    key := MapDeltaKeys(key)
+    return key
+
+}
+#HotIf GetLayer() == "DeltaDelta"
+    [::KeyHistory()
+    ]::Refresh()
+    Space::{
+        global HoldLayer := "Alpha"
+    }
+#HotIf
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DIRECT KEY MAPS
+; PrintScreen::CapsLock
+; Pause::CapsLock
+
+; Offset := 20
 ; #HotIf MouseMode
 
 ; *e::MouseMove(0, -Offset, 0, "R")
@@ -118,24 +281,7 @@ Offset := 20
 ; }
 
 ;;;;;;; pageup & pagedn for specialty
-F13::{
-    ChangeLayer("Alpha")
-}
-
-F14::{
-    ChangeLayer("Delta")
-}
-
-F15::{
-    ChangeLayer("Phi")
-}
-
 ;keypad mouse scroll
-F20::Scroll("WU", "F20")
-F21::Scroll("WD", "F21")
-
-*F20::Scroll("WU", "F20")
-*F21::Scroll("WD", "F21")
 ;F17::!Left
 ;F18::LButton
 ; !F18::!Left
@@ -144,46 +290,50 @@ F21::Scroll("WD", "F21")
 ;F20::MButton
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Enter combos
-Enter & o::^a
-Enter & |::^a
-Enter & p::^a
-Enter & SC01A::^x
+; Enter & i::Return
+; Enter & o::^a
+; Enter & P::^x
+; Enter & k::Return
+; Enter & l::^v
+; Enter & b::^c
+; Enter & `;::^c
+; Enter & ,::^s
+; Enter & .::^z
+; Enter & /::Return
 
-Enter & ?::^
-Enter & `;::^v
-Enter & b::^v
-Enter & '::^c
+; Enter & e::Up
+; Enter & f::Right
+; Enter & d::Down
+; Enter & s::Left
+; Enter & r::End
+; Enter & w::Home
+; Enter & t::PgUp
+; Enter & g::PgDn
 
-Enter & .::^s
-Enter & /::^z
-Enter & F18::^z
 
-Enter & m::Return
-Enter & ,::Return
+; ; Enter & i::Up
+; ; Enter & l::Right
+; ; Enter & k::Down
+; ; Enter & j::Left
+; ; Enter & o::End
+; ; Enter & u::Home
 
-Enter & e::Up
-Enter & f::Right
-Enter & d::Down
-Enter & s::Left
-Enter & r::End
-Enter & w::Home
-Enter & t::PgUp
-Enter & g::PgDn
+; Enter::Send("{Enter}")
+; ; Esc::Send("{Esc}")
 
-aEnter & v::AltTab
 
-; Enter & i::Up
-; Enter & l::Right
-; Enter & k::Down
-; Enter & j::Left
-; Enter & o::End
-; Enter & u::Home
+; Enter::{
+;     global EnterPaired := false
+;     global EnterDown := true
+; }
+; sc028 Up::
+; Enter Up::{
+;     if (!EnterPaired)    {
+;         Send("{Blind}{Enter}")
+;     }
+; }
 
-Enter & Backspace::Delete
-Enter & Space::AltTab
 
-Enter::Send("{Enter}")
-; Esc::Send("{Esc}")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Tab Combos
 ; Tab & a::^a
@@ -193,82 +343,39 @@ Enter::Send("{Enter}")
 ; Space & Backspace::Delete
 ; Space::Send("{Space}")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; phi
-#HotIf LayerDelta
 
-; y::`
-; ; u::]
-; i::[
-; o::]
-; p::\
-; h::-
-; j::=
-; k::;
-; l::'
-; n::{
-; }
-; m::/
 
-; e::Up
-; d::Down
-; s::Left
-; f::Right
-; w::Home
-; r::End
-; t::PgUp
-; g::PgDn
-; ;tion keys
 
-;a::^a
-;z::^z
-;x::^x
-;c::^c
-;v::^v
+; #HotIf GetKeyState("F22")
+;     1::F1
+;     3::^f
+;     7::^s
+;     F6::ChangeBrightness( -3 ) ; decrease brightness
+;     F7::ChangeBrightness( 3 ) ; increase brightness
+;     F8::Send("{Volume_Mute}")
+;     F9::Send("{Volume_Down}")
+;     F10::Send("{Volume_Up}")
 
-;1::F1
-;2::F2
-;3::F3
-;4::F4
-;5::F5
-;6::F6
-;7::F7
-;8::F8
-;9::F9
-;0::F10
-;-::F11
-;=::F12
+;     F11::{
+;         KeyHistory(500)
+;         KeyHistory()
+;         }
+;     F12::Refresh()
 
-#HotIf
+;     e::Send("{Blind}{Up}")
+;     d::Send("{Blind}{Down}")
+;     s::Send("{Blind}{Left}")
+;     f::Send("{Blind}{Right}")
+;     w::Send("{Blind}{Home}")
+;     r::Send("{Blind}{End}")
 
-#HotIf GetKeyState("F22")
-    1::F1
-    3::^f
-    7::^s
-    F6::ChangeBrightness( -3 ) ; decrease brightness
-    F7::ChangeBrightness( 3 ) ; increase brightness
-    F8::Send("{Volume_Mute}")
-    F9::Send("{Volume_Down}")
-    F10::Send("{Volume_Up}")
+;     i::Send("{Blind}{{}}")
 
-    F11::{
-        KeyHistory(500)
-        KeyHistory()
-        }
-    F12::Refresh()
-
-    e::Send("{Blind}{Up}")
-    d::Send("{Blind}{Down}")
-    s::Send("{Blind}{Left}")
-    f::Send("{Blind}{Right}")
-    w::Send("{Blind}{Home}")
-    r::Send("{Blind}{End}")
-
-    i::Send("{Blind}{{}}")
-
-    h::Send("{Blind}`"")
-    j::Send("{Blind}=")
-    k::Send("{Blind};")
-    l::Send("{Blind}:")
-#HotIf
+;     h::Send("{Blind}`"")
+;     j::Send("{Blind}=")
+;     k::Send("{Blind};")
+;     l::Send("{Blind}:")
+; #HotIf
 
 ; F22 & 1::F1
 ; F22 & 3::^f
@@ -279,8 +386,6 @@ Enter::Send("{Enter}")
 ; F22 & F9::Send("{Volume_Down}")
 ; F22 & F10::Send("{Volume_Up}")
 
-; F22 & F11::KeyHistory()
-; F22 & F12::Refresh()
 
 ; ;F24 & LShift::MouseNotMouse()
 ; ;F24 & V::MouseNotMouse()
@@ -370,31 +475,46 @@ MouseNotMouse() {
     global MouseMode := !MouseMode
 }
 
-ChangeLayer(layerName) {
-    if (layerName == "Delta") {
-        SetScrollLockState(true)
-        global LayerDelta := true
-        global LayerPhi := false
-
-    }else if (layerName == "Phi") {
-        SetScrollLockState(true)
-        global LayerDelta := false
-        global LayerPhi := true
-
-    }
-    else {
-        SetScrollLockState(false)
-        global LayerDelta := false
-        global LayerPhi := false
-
-    }
+StartRepeat(key, actionFn, initialWait := 120, repeatWait := 30) {
+    SetTimer(() => SetTimer(actionFn, repeatWait), -initialWait)
 }
 
-Repeat(key, str, initialWait := 120, repeatWait := 30) {
-    Send(str)
-    Sleep(initialWait)
-    While GetKeyState(key) {
-        Send(str)
-        Sleep(repeatWait)
-    }
+StopRepeat(actionFn) {
+    SetTimer(actionFn, 0)
 }
+
+TempToolTip(text) {
+    ToolTip(text)
+    SetTimer () => ToolTip(""), -2000
+}
+
+LayerTip() {
+
+}
+
+logKey(isHold, taps, state){
+	TempToolTip   (isHold ? "HOLD" : "TAP") " Taps: " taps " State: " state "`n"
+}
+
+; KeyWaitCombo(Options:="")
+; {
+;     ih := InputHook(Options)
+;     ; if !InStr(Options, "V")
+;     ;     ih.VisibleNonText := false
+;     ih.KeyOpt("{All}", "E")  ; End
+;     ; Exclude the modifiers
+;     ih.KeyOpt("{LCtrl}{RCtrl}{LAlt}{RAlt}{LWin}{RWin}", "-E")
+;     ih.Start()
+;     ih.Wait()
+;     Send("r{LShift up}")
+;     return ih.EndMods . ih.EndKey  ; Return a string like <^<+Esc
+; }
+
+; LShift::{
+;     Send("{Blind}{LShift down}")
+;     KeyWaitCombo("V L1")
+; }'.....'
+
+; LShift up::{
+; }
+
