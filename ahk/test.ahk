@@ -1,5 +1,7 @@
 #SingleInstance Force
 
+'f
+
 ; test()
 ; do := DisplayObject()
 ; do.test()

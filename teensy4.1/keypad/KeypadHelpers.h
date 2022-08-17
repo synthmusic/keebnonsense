@@ -74,9 +74,6 @@ void KeyStateChange(int key, int keyboard, bool down)
 
 const int AHK_LEFT_SHIFT = KEY_LEFT_ALT,
           AHK_LEFT_ALT = KEY_LEFT_SHIFT,
-          AHK_ALPHA = KEY_B,
-          AHK_DELTA = KEY_F14,
-          AHK_PHI = KEY_F15,
           AHK_USE_TEENSY = KEY_F16,
           KEY_ALPHA = KEY_B,
           KEY_DELTA = KEY_F23,
@@ -84,15 +81,10 @@ const int AHK_LEFT_SHIFT = KEY_LEFT_ALT,
           RAW_K = 0xE,
           RAW_CAPS = 0x39,
           RAW_SPACE = 0x2C,
-          KEY_BLANK = 0
-    // RAW_L = 0x2F,
-    // RAW_ = 0x,
-    // RAW_ = 0x,
-    // RAW_ = 0x,
-    // RAW_ = 0x,
-    // RAW_ = 0x,
-    // RAW_ = 0x,
-    // RAW_ = 0x,
+          KEY_BLANK = 0,
+          AHK_SCROLL_UP = KEY_F20,
+          AHK_SCROLL_DOWN = KEY_F21
+    //
     ;
 
 const int nDiv = 0x2F,
