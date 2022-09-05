@@ -226,10 +226,10 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
         : k == n8   ? downup(KEY_LEFT_ALT, d) // EZ reg
         : k == nSub ? downup(d)               // macro
 
-        : k == n4   ? downup(KEY_ENTER, d)      // EZ long
-        : k == n5   ? downup(KEY_DELTA_TAB, d)  // dead
-        : k == n6   ? downup(KEY_LEFT_SHIFT, d) // EZ reg
-        : k == nAdd ? downup(d)                 // macro
+        : k == n4 ? downup(KEY_ENTER, d)     // EZ long
+        : k == n5 ? downup(KEY_DELTA_TAB, d) // dead
+        // : k == n6   ? downup(KEY_LEFT_SHIFT, d) // EZ reg
+        : k == nAdd ? downup(d) // macro
 
         : k == n1 ? downup(d) // dead
         : k == n2 ? downup(d) // EZ long
@@ -254,8 +254,8 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
         : k == n8   ? downup(d)          // dead
         : k == nSub ? downup(KEY_PHI, d) // EZ center bottom
 
-        : k == n4   ? downup(d)                      // macro
-        : k == n5   ? downup(KEY_RIGHT_SHIFT, d)     // EZ reg
+        : k == n4 ? downup(d) // macro
+        // : k == n5   ? downup(KEY_RIGHT_SHIFT, d)     // EZ reg
         : k == n6   ? downup(KEY_DELTA_BACKSPACE, d) // EZ reg
         : k == nAdd ? downup(KEY_SPACE, d)           // EZ long
 
@@ -299,7 +299,9 @@ void OnRawPress(uint8_t keycode, KeyboardController kb, int kbNum, bool down)
 {
     int key = (0xF000 | keycode);
     KeyStateChange(keycode, kbNum, down);
-    Serial.print("RAW IN raw1 0x");
+    Serial.print("RAW IN raw");
+    Serial.print(kbNum);
+    Serial.print(" 0x");
     Serial.print(keycode, HEX);
     Serial.print(" Modifiers: ");
     Serial.println(keyboard_modifiers, HEX);
