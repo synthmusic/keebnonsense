@@ -1,7 +1,7 @@
 ; Setup
 #include TapHoldManager.ahk
 #SingleInstance Force
-;DllCall('SetProcessPriorityBoost', 'Ptr', DllCall('GetCurrentProcess'), 'Int', True)
+DllCall('SetProcessPriorityBoost', 'Ptr', DllCall('GetCurrentProcess'), 'Int', True)
 DllCall('SetPriorityClass', 'Ptr', DllCall('GetCurrentProcess'), 'Int', 0x00000080)
 Thread "interrupt", 0  ; Make all threads always-interruptible.
 A_MaxHotkeysPerInterval := 1000
@@ -11,8 +11,6 @@ CoordMode "ToolTip", "Screen"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; consts
 SINGLE_QUOTE := "sc028"
-TEENSY_BACKSPACE := "F22"
-TEENSY_TAB := "F23"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; "public" globals
 IsStandardKeyboard := true
@@ -30,9 +28,9 @@ CtrlTabState := false
 
 thm := TapHoldManager(0, 160, 1, "$*")
 holdShiftList := "`` 1 2 3 4 5 6 7 8 9 0 -"
-                . " Tab q w e r t y u i o p"
+                . " q w e r t y u i o p [ ]"
                 . " a s d f g h j k l `;"
-                . " z x c v n m , ."
+                . " z x c v n m , . /"
 
 for str in StrSplit(holdShiftList, " ") {
     thm.Add(str, holdShift.Bind(str))
@@ -51,10 +49,10 @@ holdShift(key, held, taps, state, rolled, mods) {
     {
         case "Delta":
             sendKey := MapDeltaKeys(key, held)
-        case "Phi":
-            sendKey := MapPhiKeys(key, held)
-        case "Rho":
-            sendKey := MapRhoKeys(key, held)
+        case "DeltaDelta":
+            sendKey := MapDeltaDeltaKeys(key, held)
+        case "EntPair":
+            sendKey := MapEntPairKeys(key, held)
         default:
             sendKey := MapAlphaKeys(key, held)
     }
@@ -66,78 +64,68 @@ holdShift(key, held, taps, state, rolled, mods) {
     }
 }
 
-; thm.Add("b", thmB,200,600,2,,,,false,true)
-; thmB(held, taps, state, rolled, mods) {
-;     TempKeyTip("b", held, taps, state, rolled, mods)
-;     if (!held) {
-;         if (taps == 1){
-;             SetLayer "Alpha"
-;         } else if (taps == 2) {
-;             SetLayer "Delta"
-;         }
-;     } else {
-;         SetLayer "Alpha"
-;     }
-
-;     if (state == 1) {
-;         SetLayer "DeltaDelta"
-;     } else {
-;         SetLayer ""
-;     }
-; }
-thm.Add("b", thmB,,,,,,,,true)
+thm.Add("b", thmB,200,600,2,,,,false,true)
 thmB(held, taps, state, rolled, mods) {
+    TempKeyTip("b", held, taps, state, rolled, mods)
+    if (!held) {
+        if (taps == 1){
+            SetLayer "Alpha"
+        } else if (taps == 2) {
+            SetLayer "Delta"
+        }
+    } else {
+        SetLayer "Alpha"
+    }
+
     if (state == 1) {
-        SetLayer "Phi"
-        KeyWait("b")
+        SetLayer "DeltaDelta"
+    } else {
         SetLayer ""
     }
 }
 
-thm.Add("`'", thmQuote,,,,,,,0,true)
+thm.Add("`'", thmQuote,,,,,,,,true)
 thmQuote(held, taps, state, rolled, mods) {
-    ; TempKeyTip("`'", held, taps, state, rolled, mods)
+    TempKeyTip("`'", held, taps, state, rolled, mods)
     if (!held && state == -1) {
-        Send "`'"
+        Send "'"
     }
 
     if (state == 1) {
-        SetLayer "Rho"
+        SetLayer "EntPair"
         KeyWait("`'")
         SetLayer ""
+        TempToolTip("entpair")
     }
 }
-thm.Add("CapsLock", thmDeltaHold.Bind("{Enter}"),,,,,,,0,true)
-thm.Add("Enter", thmDeltaHold.Bind("{Enter}"),,,,,,,0,true)
-thm.Add(TEENSY_TAB, thmDeltaHold.Bind("{Tab}"),,,,,,,0,true)
-thm.Add(TEENSY_BACKSPACE, thmDeltaHold.Bind("{Backspace}"),,,,,,,0,true)
-thmDeltaHold(key, held, taps, state, rolled, mods) {
+
+thm.Add("Enter", thmEnter.Bind("{Enter}"),,,,,,,0,true)
+thm.Add("CapsLock", thmEnter.Bind("{Enter}"),,,,,,,0,true)
+thm.Add("Tab", thmEnter.Bind("{Tab}"),,,,,,,0,true)
+thmEnter(key, held, taps, state, rolled, mods) {
     TempKeyTip("Ent/CL", held, taps, state, rolled, mods)
     if (!held && state == -1) {
         Send mods . key
     }
 
     if (state == 1) {
-        SetLayer "Delta"
+        SetLayer "EntPair"
     } else {
-        SetLayer "Alpha"
+        SetLayer ""
     }
 }
 
-; sendSpace  := Send.Bind("{Space down}")
-thm.Add("Space", thmSpace,,160,,,,,0,false)
+sendSpace  := Send.Bind("{Space down}")
+thm.Add("Space", thmSpace)
 thmSpace(held, taps, state, rolled, mods) {
-    ; if("space")
-    ; TempKeyTip("Sp", held, taps, state, rolled, mods)
+    if("space")
+    TempKeyTip("Sp", held, taps, state, rolled, mods)
 
     if (held)  {
         if (state) {
-            TimedTip("-----------------------DELTA-----------------------", 300)
-            SetLayer("Delta")
-            KeyWait("Space")
-            SetLayer("Alpha")
+            Send("{Space down}")
         } else {
-            ; SetLayer("Alpha")
+            Send("{Space up}")
         }
     } else if (!held) {
         Send("{Space}")
@@ -155,24 +143,22 @@ SetLayer(name) {
     switch(name)
     {
         case "Alpha":
-            ; ToolTip("A", 200, 300, 2)
-            ; SetTimer () => ToolTip("",,,2), -3000
-            ; SetTimer ToggleDeltaMessage, 0
+            ToolTip("A", 200, 300, 2)
+            SetTimer () => ToolTip("",,,2), -3000
+            SetTimer ToggleDeltaMessage, 0
             global HoldLayer := name
-        ; case "Delta":
-        ;   global ToggleDeltaViewState := true
-        ;   SetTimer ToggleDeltaMessage, 400
-        ;   global HoldLayer := name
+        case "Delta":
+            global ToggleDeltaViewState := true
+            SetTimer ToggleDeltaMessage, 400
+            global HoldLayer := name
         ; case "Phi":
         ;     ToolTip("Phi", 300, 200, 2)
         ;     SetTimer () => ToolTip("",,,2), -3000
         ;     SetTimer ToggleDeltaMessage, 0
         ;     global HoldLayer := name
-        case "Delta":
-            global HoldLayer := name
-        case "Phi":
+        case "DeltaDelta":
             global TempLayer := name
-        case "Rho":
+        case "EntPair":
             global TempLayer := name
         default:
             global TempLayer := ""
@@ -191,16 +177,12 @@ ToggleDeltaMessage() {
 GetLayer() {
     ; return TempLayer ? TempLayer : HoldLayer
 
-    if GetKeyState("b", "P") {
-        return "Phi"
+    if GetKeyState("b", "P") || GetKeyState("F23", "P") {
+        return "DeltaDelta"
     }
 
-    ; if GetKeyState("F23", "P") || GetKeyState("F22", "P") || GetKeyState("CapsLock", "P") || GetKeyState("Enter", "P") {
-    ;     return "Delta"
-    ; }
-
-    if GetKeyState(SINGLE_QUOTE, "P") {
-        return "Rho"
+    if GetKeyState("Enter", "P") || GetKeyState(SINGLE_QUOTE, "P") || GetKeyState("Tab", "P") || GetKeyState("CapsLock", "P") {
+        return "EntPair"
     }
 
     ; return LayerDelta || GetKeyState("Enter", "P")||
@@ -223,33 +205,30 @@ GetLayer() {
 ;     global IsStandardKeyboard := !IsStandardKeyboard
 ; }
 
-[::Backspace
-/::Up
+F16::{
+    global IsStandardKeyboard := false
+}
 
-; F16::{
-;     global IsStandardKeyboard := false
-; }
+F23::{
+    SetLayer "Delta"
+}
 
-; F23::{
-;     SetLayer "Delta"
-; }
+`::
+F24::{
+    SetLayer "Phi"
+}
 
-; `::
-; F24::{
-;     SetLayer "Phi"
-; }
+F20::Scroll("WU", "F20")
+F21::Scroll("WD", "F21")
+=::Scroll("WU", "=")
+[::Scroll("WD", "[")
+]::Scroll("WD", "]")
 
-; F20::Scroll("WU", "F20")
-; F21::Scroll("WD", "F21")
-; =::Scroll("WU", "=")
-; [::Scroll("WD", "[")
-; ]::Scroll("WD", "]")
-
-; *F20::Scroll("WU", "F20")
-; *F21::Scroll("WD", "F21")
-; *=::Scroll("WU", "=")
-; *[::Scroll("WD", "[")
-; *]::Scroll("WD", "]")
+*F20::Scroll("WU", "F20")
+*F21::Scroll("WD", "F21")
+*=::Scroll("WU", "=")
+*[::Scroll("WD", "[")
+*]::Scroll("WD", "]")
 
 ThisGivesMeAReferencePointInTheLogsandthenwellkeepgoingsoitreallyreallystandsoutinthelogs() {
 
@@ -263,7 +242,7 @@ ThisGivesMeAReferencePointInTheLogsandthenwellkeepgoingsoitreallyreallystandsout
 MapAlphaKeys(key, held) {
     switch key
     {
-        case "Tab": return "{Tab}"
+        case ";": return "b"
         case "q": return "q"
         case "w": return "w"
         case "e": return "e"
@@ -283,7 +262,6 @@ MapAlphaKeys(key, held) {
         case "j": return "j"
         case "k": return "k"
         case "l": return "l"
-        case ";": return "b"
         case "z": return "z"
         case "x": return "x"
         case "c": return "c"
@@ -291,6 +269,9 @@ MapAlphaKeys(key, held) {
         case "b": return "b"
         case "n": return "n"
         case "m": return "m"
+        case ",": return ","
+        case ".": return "."
+        case "/": return "{Up}"
 
         default: return key
     }
@@ -299,10 +280,10 @@ MapAlphaKeys(key, held) {
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Delta
 
 MapDeltaKeys(key, held) {
-    ; TempToolTip(key)
     if (!held) {
         switch key
         {
+
             case "1": return "{F1}"
             case "2": return "{F2}"
             case "3": return "{F3}"
@@ -320,10 +301,9 @@ MapDeltaKeys(key, held) {
 
     switch key
     {
-        case "Tab": return "{Esc}"
         case "q": return "``"
 
-        case "y": return "j"
+        case "y": return "-"
         case "u": return "\"
         case "i": return "["
         case "o": return "]"
@@ -338,7 +318,7 @@ MapDeltaKeys(key, held) {
     }
 }
 
-#HotIf GetLayer() == "Delta"
+#HotIf GetLayer() == "Delta" || GetLayer() == "DeltaDelta" || GetLayer() == "Phi"
 
     *a::Send("{Blind}{LShift Down}{LAlt Down}")
     *a Up::Send("{Blind}{LShift Up}{LAlt Up}")
@@ -352,25 +332,29 @@ MapDeltaKeys(key, held) {
     t::PgUp
     g::PgDn
 
-    v::LShift
-    c::LAlt
+    ; v::LShift
+    ; c::LAlt
 
-    n::LShift
-    m::LAlt
-
-    Backspace::Delete
-    [::Delete
-
-    Up::PgUp
-    Down::PgDn
-    Left::Home
-    Right::End
+    ; n::LShift
+    ; m::LAlt
 #HotIf
 
+; #HotIf GetLayer() == "Phi"
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Rho
+;     i::Up
+;     k::Down
+;     j::Left
+;     l::Right
+;     u::Home
+;     o::End
+;     y::PgUp
+;     h::PgDn
 
-MapRhoKeys(key, held) {
+; #HotIf
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Ent Pair
+
+MapEntPairKeys(key, held) {
     switch key
     {
         case "o": return "^a"
@@ -380,57 +364,46 @@ MapRhoKeys(key, held) {
         case ",": return "^s"
         case ".": return "^z"
 
+        ; case "m": return "!{Left}"
+        ; ; case ",": return "!{Right}"
+
+        ; case "r": return "^{Tab}"
+        ; case "w": return "^+{Tab}"
+        ; case "i": return "^{Tab}"
+        ; case "u": return "^+{Tab}"
+        ; case "x": return "!{Left}"
+        ; case "v": return "!{Right}"
+        ; case "a": return "{CapsLock}"
         default: return key
     }
 }
+#HotIf GetLayer() == "EntPair"
+    Enter & f::AltTab
+    ' & f::AltTab
+    CapsLock & f::AltTab
+    Tab & f::AltTab
+    Enter & d::ShiftAltTab
+    ' & d::ShiftAltTab
+    CapsLock & d::ShiftAltTab
+    Tab & d::ShiftAltTab
+    Enter & s::ShiftAltTab
+    ' & s::ShiftAltTab
+    CapsLock & s::ShiftAltTab
+    Tab & s::ShiftAltTab
+    Enter & j::ShiftAltTab
+    ' & j::ShiftAltTab
+    CapsLock & j::ShiftAltTab
+    Tab & j::ShiftAltTab
+    Enter & k::AltTab
+    ' & k::AltTab
+    CapsLock & k::AltTab
+    Tab & k::AltTab
+    Enter & Space::AltTab
+    ' & Space::AltTab
+    CapsLock & Space::AltTab
+    Tab & Space::AltTab
 
-; #HotIf GetLayer() == "Rho"
-
-; #HotIf
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Phi
-
-MapPhiKeys(key, held) {
-    switch key
-    {
-
-        case "r": return "^{Tab}"
-        case "w": return "^+{Tab}"
-
-        case "o": return "^{Tab}"
-        case "u": return "^+{Tab}"
-
-        case "k": return "!{Left}"
-        case "i": return "!{Right}"
-
-        case "d": return "!{Left}"
-        case "e": return "!{Right}"
-
-        case "a": return "{CapsLock}"
-
-        case "v": return "{Space}"
-        case "t": return "^{F4}"
-
-        case "h": return "^{z}"
-        case "y": return "!{F4}"
-        case "n": return "{Enter}"
-        default: return key
-    }
-}
-
-#HotIf GetLayer() == "Phi"
-    b & f::AltTab
-
-    b & l::AltTab
-
-    b & s::ShiftAltTab
-
-    b & j::ShiftAltTab
-
-    8::KeyHistory()
-    9::Refresh()
-
-    6::{
+    t::{
         Send "{F6}{F6}{Right}{Space}"
     }
 
@@ -447,25 +420,26 @@ MapPhiKeys(key, held) {
     ;     Send "{Ctrl up}"
     ; }
 
+    Backspace::Delete
 #HotIf
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Delta Delta
 
-; MapDeltaDeltaKeys(key, held) {
-;     key := MapDeltaKeys(key, held)
-;     return key
-; }
+MapDeltaDeltaKeys(key, held) {
+    key := MapDeltaKeys(key, held)
+    return key
+}
 
-; #HotIf GetLayer() == "DeltaDelta"
-;     F20::KeyHistory()
-;     =::KeyHistory()
-;     F21::Refresh()
-;     [::Refresh()
-;     ]::Refresh()
-;     Space::{
-;         SetLayer "Delta"
-;     }
-; #HotIf
+#HotIf GetLayer() == "DeltaDelta"
+    F20::KeyHistory()
+    =::KeyHistory()
+    F21::Refresh()
+    [::Refresh()
+    ]::Refresh()
+    Space::{
+        SetLayer "Delta"
+    }
+#HotIf
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Functions
 ChangeBrightness(change) {
@@ -547,10 +521,7 @@ TempToolTip(text) {
     global toolTipNum := toolTipNum > 19 ? 5 : toolTipNum + 1
     ToolTip("",,,toolTipNum)
 }
-TimedTip(text, time) {
-    ToolTip(text)
-    SetTimer ToolTip.Bind(""), -time
-}
+
 TempKeyTip(key, held, taps, state, rolled, mods) {
     if (!showKeyTips)
         return

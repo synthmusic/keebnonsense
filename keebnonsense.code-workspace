@@ -1,11 +1,14 @@
 {
     "folders": [
-		{
-			"path": "."
-		},
-		{
-			"path": "..\\..\\..\\AppData\\Local\\Microsoft\\PowerToys\\FancyZones"
-		}
-	],
+        {
+            "path": "."
+        },
+        {
+            "path": "..\\..\\..\\AppData\\Local\\Microsoft\\PowerToys\\FancyZones"
+        },
+        {
+            "path": ".."
+        }
+    ],
     "settings": {}
 }
