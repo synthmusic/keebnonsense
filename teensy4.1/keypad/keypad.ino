@@ -4,6 +4,13 @@
 #include "USBHost_t36.h"
 #include "KeypadHelpers.h"
 
+const bool usingMechKeypad = false;
+
+int MAIN_KEEB_NUM = 1;
+int RIGHT_KEEB_NUM = 2;
+int LEFT_KEEB_NUM = 3;
+int MECH_KEEB_NUM = 0;
+
 const int ROOT_K = 1;
 
 bool isActiveScrollUp = false,
@@ -36,6 +43,8 @@ JoystickController joystick1(myusb);
 USBHIDParser hid1(myusb);
 USBHIDParser hid2(myusb);
 RawHIDController rawhid1(myusb);
+RawHIDController rawhid2(myusb);
+RawHIDController rawhid3(myusb);
 // RawHIDController rawhid2(myusb, 0xffc90004);
 
 USBDriver *drivers[] = {&hub1, &hub2, &hub3, &hub4, &hub5, &hub6, &keyboard1, &keyboard2, &keyboard3, &keyboard4, &keyboard5, &keyboard6, &keyboard7, &keyboard8, &hid1, &hid2};
@@ -43,35 +52,65 @@ USBDriver *drivers[] = {&hub1, &hub2, &hub3, &hub4, &hub5, &hub6, &keyboard1, &k
 const char *driver_names[CNT_DEVICES] = {"Hub1", "Hub2", "Hub3", "Hub4", "Hub5", "Hub6", "KB1", "KB2", "KB3", "KB4", "KB5", "KB6", "KB7", "KB8", "HID1", "HID2"};
 bool driver_active[CNT_DEVICES] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
-USBHIDInput *hiddrivers[] = {&mouse1, &joystick1, &rawhid1};
+USBHIDInput *hiddrivers[] = {&mouse1, &joystick1, &rawhid1, &rawhid2, &rawhid3};
 #define CNT_HIDDEVICES (sizeof(hiddrivers) / sizeof(hiddrivers[0]))
-const char *hid_driver_names[CNT_DEVICES] = {"Mouse1", "Joystick1", "RawHid1"};
-bool hid_driver_active[CNT_DEVICES] = {false, false, false};
+const char *hid_driver_names[CNT_DEVICES] = {"Mouse1", "Joystick1", "RawHid1", "RawHid2", "RawHid3"};
+bool hid_driver_active[CNT_DEVICES] = {false, false, false, false, false};
 bool show_changed_only = false;
 
 void setup()
 {
+
+    if (usingMechKeypad)
+    {
+        MAIN_KEEB_NUM = 3;
+        RIGHT_KEEB_NUM = 4;
+        LEFT_KEEB_NUM = 5;
+        MECH_KEEB_NUM = 1;
+    }
+
     Serial.println("\n\nUSB Host Testing");
     Serial.println(sizeof(USBHub), DEC);
 
     myusb.begin();
 
-    // keyboard1.attachPress(Press1);
-    // keyboard1.attachRelease(Release1);
-    keyboard1.attachRawPress(RawPress1);
-    keyboard1.attachRawRelease(RawRelease1);
-    keyboard1.attachExtrasPress(OnHIDExtrasPress);
-    keyboard1.attachExtrasRelease(OnHIDExtrasRelease);
+    if (usingMechKeypad)
+    {
+        keyboard3.attachRawPress(RawPress3);
+        keyboard3.attachRawRelease(RawRelease3);
+        keyboard3.attachExtrasPress(OnHIDExtrasPress);
+        keyboard3.attachExtrasRelease(OnHIDExtrasRelease);
 
-    keyboard2.attachPress(Press2);
-    keyboard2.attachRelease(Release2);
+        keyboard1.attachPress(Press1);
+        keyboard1.attachRelease(Release1);
+        keyboard2.attachPress(Press2);
+        keyboard2.attachRelease(Release2);
+        // keyboard3.attachPress(Press3);
+        // keyboard3.attachRelease(Release3);
+        keyboard4.attachPress(Press4);
+        keyboard4.attachRelease(Release4);
+        keyboard5.attachPress(Press5);
+        keyboard5.attachRelease(Release5);
+    }
+    else
+    {
+        keyboard1.attachRawPress(RawPress1);
+        keyboard1.attachRawRelease(RawRelease1);
+        keyboard1.attachExtrasPress(OnHIDExtrasPress);
+        keyboard1.attachExtrasRelease(OnHIDExtrasRelease);
 
-    keyboard3.attachPress(Press3);
-    keyboard3.attachRelease(Release3);
-    keyboard4.attachPress(Press4);
-    keyboard4.attachRelease(Release4);
-    keyboard5.attachPress(Press5);
-    keyboard5.attachRelease(Release5);
+        // keyboard1.attachPress(Press1);
+        // keyboard1.attachRelease(Release1);
+        keyboard2.attachPress(Press2);
+        keyboard2.attachRelease(Release2);
+        keyboard3.attachPress(Press3);
+        keyboard3.attachRelease(Release3);
+        keyboard4.attachPress(Press4);
+        keyboard4.attachRelease(Release4);
+        keyboard5.attachPress(Press5);
+        keyboard5.attachRelease(Release5);
+    }
+
     keyboard6.attachPress(Press6);
     keyboard6.attachRelease(Release6);
     keyboard7.attachPress(Press7);
@@ -92,7 +131,13 @@ void setup()
 // void Release1(int key) { OnKeypadPress(key, keyboard1, 1, false); }
 void RawPress1(uint8_t key) { OnRawPress(key, keyboard1, 1, true); }
 void RawRelease1(uint8_t key) { OnRawPress(key, keyboard1, 1, false); }
+void RawPress2(uint8_t key) { OnRawPress(key, keyboard2, 2, true); }
+void RawRelease2(uint8_t key) { OnRawPress(key, keyboard2, 2, false); }
+void RawPress3(uint8_t key) { OnRawPress(key, keyboard3, 3, true); }
+void RawRelease3(uint8_t key) { OnRawPress(key, keyboard3, 3, false); }
 
+void Press1(int key) { OnKeypadPress(key, keyboard1, 1, true); }
+void Release1(int key) { OnKeypadPress(key, keyboard1, 1, false); }
 void Press2(int key) { OnKeypadPress(key, keyboard2, 2, true); }
 void Release2(int key) { OnKeypadPress(key, keyboard2, 2, false); }
 void Press3(int key) { OnKeypadPress(key, keyboard3, 3, true); }
@@ -211,10 +256,10 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
     k = key;
     d = down;
 
-    if (kbNum == ROOT_K)
+    if (kbNum == -1)
     {
     }
-    else if (kbNum == ROOT_K + 2) // LEFT
+    else if (kbNum == LEFT_KEEB_NUM) // LEFT
     {
         k == nTab ? downup(KEY_LEFT_GUI, d) // EZ center mid
         // : k == nDiv       ? downup(KEY_LEFT_CTRL, KEY_F4, d) // macro
@@ -223,13 +268,13 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
 
         : k == n7 ? downup(KEY_PHI, d) // EZ center bottom
         // : k == n8   ? downup(KEY_ESC, d)      // EZ reg
-        : k == n8   ? downup(KEY_LEFT_ALT, d) // EZ reg
-        : k == nSub ? downup(d)               // macro
+        : k == n8   ? downup(KEY_SPACE, d) // EZ reg
+        : k == nSub ? downup(d)            // macro
 
-        : k == n4 ? downup(KEY_ENTER, d)     // EZ long
-        : k == n5 ? downup(KEY_DELTA_TAB, d) // dead
+        : k == n4 ? downup(KEY_DELTA_ENTER, d) // EZ long
+        : k == n5 ? downup(KEY_DELTA_TAB, d)   // dead
         // : k == n6   ? downup(KEY_LEFT_SHIFT, d) // EZ reg
-        : k == nAdd ? downup(d) // macro
+        : k == nAdd ? downup(AHK_USE_TEENSY, d) // macro
 
         : k == n1 ? downup(d) // dead
         : k == n2 ? downup(d) // EZ long
@@ -241,12 +286,12 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
 
                     : void(0);
     }
-    else if (kbNum == ROOT_K + 1) // RIGHT
+    else if (kbNum == RIGHT_KEEB_NUM) // RIGHT
     {
-        k == nTab   ? downup(d) // macro
-        : k == nDiv ? downup(d) // macro
-        // : k == nMult      ? downup(KEY_LEFT_ALT, KEY_F4, d) // macro
-        : k == nBackspace ? downup(KEY_LEFT_GUI, d) // EZ center mid
+        k == nTab         ? downup(d)                       // macro
+        : k == nDiv       ? downup(d)                       // macro
+        : k == nMult      ? downup(KEY_LEFT_ALT, KEY_F4, d) // macro
+        : k == nBackspace ? downup(KEY_LEFT_GUI, d)         // EZ center mid
 
         : k == n7 ? downup(d)                // macro
         : k == n9 ? downup(KEY_RIGHT_ALT, d) // EZ reg
@@ -269,12 +314,38 @@ void OnKeypadPress(int key, KeyboardController kb, int kbNum, bool down)
 
                     : void(0);
     }
+    else if (kbNum == MECH_KEEB_NUM)
+    // the n numbers will not work, as you need to
+    // find the hex, mech defalts to numpad off
+    {
+        k == nTab         ? downup(d) // macro
+        : k == nDiv       ? downup(d) // macro
+        : k == nMult      ? downup(d) // macro
+        : k == nBackspace ? downup(d) // EZ center mid
+
+        : k == n7   ? downup(d)               // macro
+        : k == n8   ? downup(d)               // dead
+        : k == n9   ? downup(d)               // EZ reg
+        : k == nSub ? downup(KEY_LEFT_GUI, d) // EZ center bottom
+
+        : k == n4   ? downup(d)                // macro
+        : k == n5   ? downup(d)                // EZ reg
+        : k == 0x36 ? downup(KEY_RIGHT_ALT, d) // EZ reg
+        : k == nAdd ? downup(KEY_PHI, d)       // EZ long
+
+        : k == n1     ? downup(d)                      // macro
+        : k == n2     ? downup(d)                      // EZ reg
+        : k == 0x33   ? downup(KEY_DELTA_BACKSPACE, d) // EZ long
+        : k == nEnter ? downup(KEY_SPACE, d)           // dead
+
+        : k == n0   ? downup(d) // macro
+        : k == nDot ? downup(d) // dead
+
+                    : void(0);
+    }
     else
     {
-        k == n3   ? downup(0x5B, d)
-        : k == n7 ? downup(0x5F, d)
-
-                  : downup(key, down);
+        downup(key, down);
     }
 
     // PRINT WHAT'S HAPPENING
@@ -336,7 +407,7 @@ void OnRawPress(uint8_t keycode, KeyboardController kb, int kbNum, bool down)
         : keycode == RAW_SPACE ? KEY_LEFT_CTRL
         // : keycode == 0x33      ? KEY_B
 
-        // : keycode == 0x2E ? AHK_SCROLL_UP
+        // : keycode == 0x2E ? AHK_SCROLL_hujuUP
         // : keycode == 0x2F ? AHK_SCROLL_DOWN
         // : keycode == 0x30 ? AHK_SCROLL_DOWN
 

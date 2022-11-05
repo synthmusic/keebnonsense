@@ -68,8 +68,8 @@ void KeyStateChange(int key, int keyboard, bool down)
     {
     }
 
-    down ? Serial.printf("    d:  %i", anyKeyChangedEllapsed)
-         : Serial.printf("          u:  %i", anyKeyChangedEllapsed);
+    down ? Serial.printf("    d%i: 0x%04x   %i", keyboard, key, anyKeyChangedEllapsed)
+         : Serial.printf("          u: 0x%04x  %i", key, anyKeyChangedEllapsed);
     Serial.println();
 
     LastAnyKeyChangedTime = now;
@@ -79,15 +79,19 @@ const int AHK_LEFT_SHIFT = KEY_LEFT_ALT,
           AHK_LEFT_ALT = KEY_LEFT_SHIFT,
           AHK_USE_TEENSY = KEY_F16,
           KEY_ALPHA = KEY_F24,
-          KEY_DELTA_TAB = KEY_F23,
-          KEY_DELTA_BACKSPACE = KEY_F22,
-          KEY_PHI = KEY_B,
+          KEY_DELTA_BACKSPACE = KEY_BACKSPACE,
+          KEY_DELTA_TAB = KEY_TAB,
+          KEY_DELTA_ENTER = KEY_ENTER,
+          //   KEY_DELTA_BACKSPACE = KEY_F22,
+    // KEY_DELTA_TAB = KEY_F23,
+    // KEY_DELTA_ENTER = KEY_F21,
+    KEY_PHI = KEY_B,
           RAW_K = 0xE,
           RAW_CAPS = 0x39,
           RAW_SPACE = 0x2C,
           KEY_BLANK = 0,
-          AHK_SCROLL_UP = KEY_F20,
-          AHK_SCROLL_DOWN = KEY_F21
+          AHK_SCROLL_UP = KEY_F18,
+          AHK_SCROLL_DOWN = KEY_F19
     //
     ;
 

@@ -13,18 +13,18 @@ CoordMode "ToolTip", "Screen"
 SINGLE_QUOTE := "sc028"
 TEENSY_BACKSPACE := "F22"
 TEENSY_TAB := "F23"
+TEENSY_ENTER := "F21"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; "public" globals
 IsStandardKeyboard := true
 ShowKeyTips := false
+FunctionLock := false
+DeltaCount := 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; "private" globals
 HoldLayer := "Alpha"
 TempLayer := ""
-HotLeftArrows := 0
-HotRightArrows := 0
-ToggleDeltaViewState := true
-CtrlTabState := false
+ToggleDeltaNotificationState := true
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; Keyboard setup
 
@@ -37,6 +37,8 @@ holdShiftList := "`` 1 2 3 4 5 6 7 8 9 0 -"
 for str in StrSplit(holdShiftList, " ") {
     thm.Add(str, holdShift.Bind(str))
 }
+
+-::8
 
 holdShift(key, held, taps, state, rolled, mods) {
     TempKeyTip(key, held, taps, state, rolled, mods)
@@ -69,11 +71,11 @@ thmB(held, taps, state, rolled, mods) {
     }
 }
 
-thm.Add("`'", thmQuote,,,,,,,0,true)
-thmQuote(held, taps, state, rolled, mods) {
+thm.Add("`'", thmRho,,,,,,,0,true)
+thmRho(held, taps, state, rolled, mods) {
     ; TempKeyTip("`'", held, taps, state, rolled, mods)
     if (!held && state == -1) {
-        Send "`'"
+        Send "{Blind}`'"
     }
 
     if (state == 1) {
@@ -82,13 +84,25 @@ thmQuote(held, taps, state, rolled, mods) {
         SetLayer ""
     }
 }
+
 thm.Add("CapsLock", thmDeltaHold.Bind("{Enter}"),,,,,,,0,true)
 thm.Add("Enter", thmDeltaHold.Bind("{Enter}"),,,,,,,0,true)
-thm.Add(TEENSY_TAB, thmDeltaHold.Bind("{Tab}"),,,,,,,0,true)
-thm.Add(TEENSY_BACKSPACE, thmDeltaHold.Bind("{Backspace}"),,,,,,,0,true)
+thm.Add("Tab", thmDeltaHold.Bind("{Tab}"),,,,,,,0,true)
+thm.Add("Backspace", thmDeltaHold.Bind("{Backspace}"),,,,,,,0,true)
 thmDeltaHold(key, held, taps, state, rolled, mods) {
     TempKeyTip("Ent/CL", held, taps, state, rolled, mods)
     if (!held && state == -1) {
+        if (key == "{Tab}") {
+            if GetKeyState("Enter", "P") || GetKeyState("Backspace", "P") || GetKeyState("Space", "P") {
+            ; if GetLayer() == "Delta" {
+                key := "{Esc}"
+            }
+        }
+        if (key == "{Backspace}") {
+            if GetKeyState("Enter", "P") || GetKeyState("Tab", "P") || GetKeyState("Space", "P") {
+                key := "{Delete}"
+            }
+        }
         Send "{Blind}" . mods . key
     }
 
@@ -105,13 +119,13 @@ thmSpace(held, taps, state, rolled, mods) {
 
     if (held)  {
         if (state) {
-            TimedTip("-----------------------DELTA-----------------------", 300)
+            TimedTip("⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛ DELTA ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛`n⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛", 350)
             SetLayer("Delta")
             KeyWait("Space")
             SetLayer("Alpha")
         }
     } else if (!held) {
-        Send("{Space}")
+        Send("{Blind}{Space}")
     }
 }
 
@@ -135,12 +149,12 @@ SetLayer(name) {
 }
 
 ToggleDeltaMessage() {
-    if (ToggleDeltaViewState) {
+    if (ToggleDeltaNotificationState) {
         ToolTip("`n`nSHIFTED", 25, 5, 2)
     } else {
         ToolTip("",,,2)
     }
-    global ToggleDeltaViewState := !ToggleDeltaViewState
+    global ToggleDeltaNotificationState := !ToggleDeltaNotificationState
 }
 
 GetLayer() {
@@ -160,25 +174,91 @@ GetLayer() {
     return HoldLayer
 }
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; No Layer functions
+PrintScreen::{
+
+}
+
+ClearAll() {
+    Send("{Shift down}")
+    Send("{Shift up}")
+    Send("{LShift down}")
+    Send("{LShift up}")
+    Send("{RShift down}")
+    Send("{RShift up}")
+    Send("{Alt down}")
+    Send("{Alt up}")
+    Send("{Ctrl down}")
+    Send("{Ctrl up}")
+    Send("{Win down}")
+    Send("{Win up}")
+    Send("{LAlt down}")
+    Send("{LAlt up}")
+    Send("{LCtrl down}")
+    Send("{LCtrl up}")
+    Send("{LWin down}")
+    Send("{LWin up}")
+    Send("{RAlt down}")
+    Send("{RAlt up}")
+    Send("{RCtrl down}")
+    Send("{RCtrl up}")
+    Send("{RWin down}")
+    Send("{RWin up}")
+    SetLayer("")
+    SetLayer("Alpha")
+    if GetKeyState("CapsLock", "T") {
+        Send("{CapsLock}")
+    }
+}
+
+#HotIf IsStandardKeyboard
+    RAlt::RCtrl
+    RCtrl::RAlt
+    LAlt::LCtrl
+    LCtrl::LAlt
+    Enter::Ctrl
+    Backspace::Ctrl
+#HotIf
+
+F16::{
+    global IsStandardKeyboard := false
+    TimedTip("Standard Keyboard: " . IsStandardKeyboard, 3000)
+    ClearAll()
+}
+
+Insert::{
+    global IsStandardKeyboard := true
+    TimedTip("Standard Keyboard: " . IsStandardKeyboard, 3000)
+}
+; #HotIf !IsStandardKeyboard
+    [::Backspace
+    ]::Backspace
+    /::Up
+    =::Enter
+; #HotIf
+
+ThisGivesMeAReferencePointInTheLogsandthenwellkeepgoingsoitreallyreallystandsoutinthelogs() {
+
+}
+; ~RAlt::{
+;     ThisGivesMeAReferencePointInTheLogsandthenwellkeepgoingsoitreallyreallystandsoutinthelogs()
+;     ClearTips()
+; }
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; CAPS LOCK
 #HotIf GetKeyState("CapsLock", "T")
 -::Send("{Blind}{Shift down}-{Shift up}")
 #HotIf
 
-[::Backspace
-/::Up
-=::Enter
-
-ThisGivesMeAReferencePointInTheLogsandthenwellkeepgoingsoitreallyreallystandsoutinthelogs() {
-
-}
-~RAlt::{
-    ThisGivesMeAReferencePointInTheLogsandthenwellkeepgoingsoitreallyreallystandsoutinthelogs()
-    ClearTips()
-}
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Alpha
 MapAlphaKeys(key, held) {
+    if (FunctionLock) {
+        FunctionTest := FunctionKeys(key)
+        if (FunctionTest) {
+            return FunctionTest
+        }
+    }
     switch key
     {
         case "Tab": return "{Tab}"
@@ -214,42 +294,46 @@ MapAlphaKeys(key, held) {
     }
 }
 
+FunctionKeys(key) {
+    switch key
+    {
+        case "1": return "{F1}"
+        case "2": return "{F2}"
+        case "3": return "{F3}"
+        case "4": return "{F4}"
+        case "5": return "{F5}"
+        case "6": return "{F6}"
+        case "7": return "{F7}"
+        case "8": return "{F8}"
+        case "9": return "{F9}"
+        case "0": return "{F10}"
+        case "p": return "{F11}"
+        case "`;": return "{F12}"
+        default: return ""
+    }
+}
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Delta
 
 MapDeltaKeys(key, held) {
     ; TempToolTip(key)
-    if (!held) {
-        switch key
-        {
-            case "1": return "{F1}"
-            case "2": return "{F2}"
-            case "3": return "{F3}"
-            case "4": return "{F4}"
-            case "5": return "{F5}"
-            case "6": return "{F6}"
-            case "7": return "{F7}"
-            case "8": return "{F8}"
-            case "9": return "{F9}"
-            case "0": return "{F10}"
-            case "p": return "{F11}"
-            case "`;": return "{F12}"
-        }
-    }
 
     switch key
     {
         case "Tab": return "{Esc}"
+        case "Backspace": return "{Delete}"
         case "q": return "``"
 
-        case "y": return "j"
+        case "y": return ""
         case "u": return "\"
         case "i": return "["
         case "o": return "]"
 
-        case "h": return "/"
+        case ",": return "/"
         case "j": return "="
         case "k": return ";"
         case "l": return "'"
+
+        case "m": return "^{z}"
 
 
         default: return key
@@ -270,13 +354,10 @@ MapDeltaKeys(key, held) {
     t::PgUp
     g::PgDn
 
-    v::LShift
-    c::LAlt
+    `;::LShift
+    v::LAlt
 
     n::LShift
-    m::LAlt
-
-    Backspace::Delete
     [::Delete
 
     Up::PgUp
@@ -284,7 +365,6 @@ MapDeltaKeys(key, held) {
     Left::Home
     Right::End
 #HotIf
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Rho
 
@@ -297,6 +377,7 @@ MapRhoKeys(key, held) {
         case ";": return "^c"
         case ",": return "^s"
         case ".": return "^z"
+        case "k": return "{Enter}"
 
         default: return key
     }
@@ -309,6 +390,11 @@ MapRhoKeys(key, held) {
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Phi
 
 MapPhiKeys(key, held) {
+    FunctionTest := FunctionKeys(key)
+    if (FunctionTest) {
+        return FunctionTest
+    }
+
     switch key
     {
 
@@ -318,39 +404,48 @@ MapPhiKeys(key, held) {
         case "o": return "^{Tab}"
         case "u": return "^+{Tab}"
 
-        case "k": return "!{Left}"
-        case "i": return "!{Right}"
+        case "j": return "!{Left}"
+        case "l": return "!{Right}"
 
-        case "d": return "!{Left}"
-        case "e": return "!{Right}"
+        case "s": return "!{Left}"
+        case "f": return "!{Right}"
 
         case "a": return "{CapsLock}"
 
-        case "v": return "{Space}"
+        case "g": return "{Space}"
         case "t": return "^{F4}"
 
-        case "h": return "^{z}"
+        case "m": return "^{z}"
         case "y": return "!{F4}"
-        case "n": return "{Enter}"
+
         default: return key
     }
 }
 
 #HotIf GetLayer() == "Phi"
-    b & f::AltTab
+    b & e::AltTab
 
-    b & l::AltTab
+    b & i::AltTab
 
-    b & s::ShiftAltTab
+    b & d::ShiftAltTab
 
-    b & j::ShiftAltTab
+    b & k::ShiftAltTab
 
-    8::KeyHistory()
-    9::Refresh()
-
-    6::{
-        Send "{F6}{F6}{Right}{Space}"
+    q::{
+        global FunctionLock := !FunctionLock
+        TimedTip("Function Lock: " . FunctionLock, 3000)
     }
+    ,::KeyHistory()
+    .::Refresh()
+
+    -::{
+        global IsStandardKeyboard := !IsStandardKeyboard
+        TimedTip("Standard Keyboard: " . IsStandardKeyboard, 3000)
+    }
+    Tab::Esc
+    Backspace::Delete
+    Space::Enter
+    Enter::Space
 
 #HotIf
 
