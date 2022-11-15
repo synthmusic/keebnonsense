@@ -1,3 +1,5 @@
+Version := 1.0.5
+
 ; Setup
 #include TapHoldManager.ahk
 #SingleInstance Force
@@ -14,6 +16,7 @@ SINGLE_QUOTE := "sc028"
 TEENSY_BACKSPACE := "F22"
 TEENSY_TAB := "F23"
 TEENSY_ENTER := "F21"
+MOD_KEY_DELTA := "F24"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; "public" globals
 IsStandardKeyboard := true
@@ -38,7 +41,7 @@ for str in StrSplit(holdShiftList, " ") {
     thm.Add(str, holdShift.Bind(str))
 }
 
--::8
+; -::8
 
 holdShift(key, held, taps, state, rolled, mods) {
     TempKeyTip(key, held, taps, state, rolled, mods)
@@ -62,11 +65,11 @@ holdShift(key, held, taps, state, rolled, mods) {
     }
 }
 
-thm.Add("b", thmB,,,,,,,,true)
+thm.Add("=", thmB,,,,,,,,true)
 thmB(held, taps, state, rolled, mods) {
     if (state == 1) {
         SetLayer "Phi"
-        KeyWait("b")
+        KeyWait("=")
         SetLayer ""
     }
 }
@@ -89,6 +92,7 @@ thm.Add("CapsLock", thmDeltaHold.Bind("{Enter}"),,,,,,,0,true)
 thm.Add("Enter", thmDeltaHold.Bind("{Enter}"),,,,,,,0,true)
 thm.Add("Tab", thmDeltaHold.Bind("{Tab}"),,,,,,,0,true)
 thm.Add("Backspace", thmDeltaHold.Bind("{Backspace}"),,,,,,,0,true)
+thm.Add("F24", thmDeltaHold.Bind(""),,,,,,,0,true)
 thmDeltaHold(key, held, taps, state, rolled, mods) {
     TempKeyTip("Ent/CL", held, taps, state, rolled, mods)
     if (!held && state == -1) {
@@ -105,11 +109,14 @@ thmDeltaHold(key, held, taps, state, rolled, mods) {
         }
         Send "{Blind}" . mods . key
     }
-
-    if (state == 1) {
+    if (state == 1 && !held) {
+        global DeltaCount := DeltaCount + 1
         SetLayer "Delta"
-    } else {
-        SetLayer "Alpha"
+    } else if (state != 1) {
+        global DeltaCount := DeltaCount - 1
+        if (DeltaCount == 0) {
+            SetLayer "Alpha"
+        }
     }
 }
 
@@ -159,7 +166,7 @@ ToggleDeltaMessage() {
 
 GetLayer() {
 
-    if GetKeyState("b", "P") {
+    if GetKeyState("=", "P") {
         return "Phi"
     }
 
@@ -233,9 +240,7 @@ Insert::{
 }
 ; #HotIf !IsStandardKeyboard
     [::Backspace
-    ]::Backspace
     /::Up
-    =::Enter
 ; #HotIf
 
 ThisGivesMeAReferencePointInTheLogsandthenwellkeepgoingsoitreallyreallystandsoutinthelogs() {
@@ -323,17 +328,18 @@ MapDeltaKeys(key, held) {
         case "Backspace": return "{Delete}"
         case "q": return "``"
 
-        case "y": return ""
+        case "y": return "``"
         case "u": return "\"
         case "i": return "["
         case "o": return "]"
 
-        case ",": return "/"
+        case "h": return ""
         case "j": return "="
         case "k": return ";"
         case "l": return "'"
 
         case "m": return "^{z}"
+        case ",": return "/"
 
 
         default: return key
@@ -354,10 +360,9 @@ MapDeltaKeys(key, held) {
     t::PgUp
     g::PgDn
 
-    `;::LShift
+    b::LShift
     v::LAlt
 
-    n::LShift
     [::Delete
 
     Up::PgUp
@@ -423,13 +428,13 @@ MapPhiKeys(key, held) {
 }
 
 #HotIf GetLayer() == "Phi"
-    b & e::AltTab
+    = & e::AltTab
 
-    b & i::AltTab
+    = & i::AltTab
 
-    b & d::ShiftAltTab
+    = & d::ShiftAltTab
 
-    b & k::ShiftAltTab
+    = & k::ShiftAltTab
 
     q::{
         global FunctionLock := !FunctionLock
