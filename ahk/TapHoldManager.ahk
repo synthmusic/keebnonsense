@@ -30,11 +30,11 @@ class TapHoldManager {
 		this.Bindings.delete(keyName)
 	}
 
-	PauseHotkey(keyName) { ; to pause hotkey temprarily
+	PauseHotkey(keyName) { ; to pause hotkey temporarily
 		this.Bindings[keyName].SetHotState(0)
 	}
 
-	ResumeHotkey(keyName) { ; resume previously deactivated hotkey
+	ResumeHotkey(keyName) { ; resume previously paused hotkey
 		this.Bindings[keyName].SetHotState(1)
 	}
 

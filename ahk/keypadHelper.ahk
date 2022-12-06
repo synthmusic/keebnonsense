@@ -1,4 +1,4 @@
-Version := 1.0.5
+Version := "1.0.5"
 
 ; Setup
 #include TapHoldManager.ahk
@@ -10,6 +10,7 @@ A_MaxHotkeysPerInterval := 1000
 KeyHistory(100)
 SendMode "Event"
 CoordMode "ToolTip", "Screen"
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;; consts
 SINGLE_QUOTE := "sc028"
@@ -35,7 +36,7 @@ thm := TapHoldManager(0, 160, 1, "$*")
 holdShiftList := "`` 1 2 3 4 5 6 7 8 9 0 -"
                 . " Tab q w e r t y u i o p"
                 . " a s d f g h j k l `;"
-                . " z x c v n m , ."
+                . " z x c v b n m , ."
 
 for str in StrSplit(holdShiftList, " ") {
     thm.Add(str, holdShift.Bind(str))
@@ -65,8 +66,8 @@ holdShift(key, held, taps, state, rolled, mods) {
     }
 }
 
-thm.Add("=", thmB,,,,,,,,true)
-thmB(held, taps, state, rolled, mods) {
+thm.Add("=", thmPhi,,,,,,,,true)
+thmPhi(held, taps, state, rolled, mods) {
     if (state == 1) {
         SetLayer "Phi"
         KeyWait("=")
@@ -188,35 +189,45 @@ PrintScreen::{
 }
 
 ClearAll() {
-    Send("{Shift down}")
-    Send("{Shift up}")
-    Send("{LShift down}")
-    Send("{LShift up}")
-    Send("{RShift down}")
-    Send("{RShift up}")
-    Send("{Alt down}")
-    Send("{Alt up}")
-    Send("{Ctrl down}")
-    Send("{Ctrl up}")
-    Send("{Win down}")
-    Send("{Win up}")
-    Send("{LAlt down}")
-    Send("{LAlt up}")
-    Send("{LCtrl down}")
-    Send("{LCtrl up}")
-    Send("{LWin down}")
-    Send("{LWin up}")
-    Send("{RAlt down}")
-    Send("{RAlt up}")
-    Send("{RCtrl down}")
-    Send("{RCtrl up}")
-    Send("{RWin down}")
-    Send("{RWin up}")
+    ; if GetKeyState("CapsLock", "T") {
+    ;     Send("{CapsLock}")
+    ; }
     SetLayer("")
     SetLayer("Alpha")
-    if GetKeyState("CapsLock", "T") {
-        Send("{CapsLock}")
-    }
+    SetCapsLockState(0)
+    Sleep(30)
+    Send("{LWin down}")
+    Sleep(30)
+    Send("{LWin up}")
+    Sleep(30)
+    Send("{Shift down}")
+    Send("{Alt down}")
+    Send("{Ctrl down}")
+    Sleep(30)
+    Send("{Shift up}")
+    Send("{Alt up}")
+    Send("{Ctrl up}")
+    Sleep(30)
+    Send("{LShift down}")
+    Send("{LAlt down}")
+    Send("{LCtrl down}")
+    Sleep(30)
+    Send("{LShift up}")
+    Send("{LAlt up}")
+    Send("{LCtrl up}")
+    Sleep(30)
+    Send("{RShift down}")
+    Send("{RAlt down}")
+    Send("{RCtrl down}")
+    Sleep(30)
+    Send("{RShift up}")
+    Send("{RAlt up}")
+    Send("{RCtrl up}")
+    Sleep(30)
+    Send("{RWin down}")
+    Sleep(30)
+    Send("{RWin up}")
+    Sleep(20)
 }
 
 #HotIf IsStandardKeyboard
@@ -237,11 +248,12 @@ F16::{
 Insert::{
     global IsStandardKeyboard := true
     TimedTip("Standard Keyboard: " . IsStandardKeyboard, 3000)
+    ClearAll()
 }
-; #HotIf !IsStandardKeyboard
-    [::Backspace
-    /::Up
-; #HotIf
+
+[::Backspace
+/::Up
+
 
 ThisGivesMeAReferencePointInTheLogsandthenwellkeepgoingsoitreallyreallystandsoutinthelogs() {
 
@@ -286,7 +298,7 @@ MapAlphaKeys(key, held) {
         case "j": return "j"
         case "k": return "k"
         case "l": return "l"
-        case ";": return "b"
+        case ";": return ""
         case "z": return "z"
         case "x": return "x"
         case "c": return "c"
@@ -326,8 +338,8 @@ MapDeltaKeys(key, held) {
     {
         case "Tab": return "{Esc}"
         case "Backspace": return "{Delete}"
-        case "q": return "``"
 
+        ;  right half
         case "y": return "``"
         case "u": return "\"
         case "i": return "["
@@ -341,27 +353,31 @@ MapDeltaKeys(key, held) {
         case "m": return "^{z}"
         case ",": return "/"
 
-
         default: return key
     }
 }
 
-#HotIf GetLayer() == "Delta"
+#HotIf GetLayer() == "Delta" || GetLayer() == "Rho"
+
+
+    q::LShift
+    w::Home
+    e::Up
+    r::End
+    t::PgUp
 
     *a::Send("{Blind}{LShift Down}{LAlt Down}")
     *a Up::Send("{Blind}{LShift Up}{LAlt Up}")
-
-    e::Up
-    d::Down
     s::Left
+    d::Down
     f::Right
-    w::Home
-    r::End
-    t::PgUp
     g::PgDn
 
-    b::LShift
+    ; z::
+    ; x::
+    ; c::
     v::LAlt
+    b::LCtrl
 
     [::Delete
 
