@@ -19,7 +19,7 @@ class TapHoldManager {
 		this.window := window
 	}
 
-	Add(keyName, callback, tapGap := -1, holdTime := -1, maxTaps := -1, prefixes := -1, window := "", isRollingKey := 1, isRollale := 1, notifyTapDown := 0){    ; Add hotkey
+	Add(keyName, callback, tapGap := -1, holdTime := -1, maxTaps := -1, prefixes := -1, window := "", isRollingKey := 1, isRollale := 1, notifyTapDown := 0){ ; Add hotkey
 		this.Bindings[keyName] := KeyManager(this, keyName, callback, tapGap, holdTime, maxTaps, prefixes, window, isRollingKey, isRollale, notifyTapDown)
 	}
 
@@ -187,7 +187,7 @@ class KeyManager {
 	}
 
 	KeyDown(thisHotKey){
-		() => key := "down"
+		; () => key := "down" ;; this gets an entry in the lines executed list
 		if (this.state == 1)
 			return	; Suppress Repeats
 
@@ -216,13 +216,11 @@ class KeyManager {
 	}
 
 	KeyUp(thisHotKey, rolled := 0){
-		() => key := "up"
+		; () => key := "up" ;; this gets an entry in the lines executed list
 		; Send("up " thisHotKey this.sequence this.state "`n" )
 		if (this.state == 0)
 			return	; Suppress if rolling keys already released it
 		this.state := 0
-
-
 
 		this.SetHoldWatcherState(0)
 
@@ -236,12 +234,11 @@ class KeyManager {
 			this.SetTapWatcherState(1)
 		}
 
-
 		; Send("up " thisHotKey this.sequence this.state "`n" )
 	}
 
 	ResetSequence(){
-		() => key := "reset"
+		; () => key := "reset" ;; this gets an entry in the lines executed list
 		this.SetHoldWatcherState(0)
 		this.SetTapWatcherState(0)
 		this.sequence := 0
@@ -252,7 +249,7 @@ class KeyManager {
 
 	; When a key is pressed, if it is not released within hold, then it is considered a hold
 	SetHoldWatcherState(state){
-		() => key := "SetHoldWatcherState"
+		; () => key := "SetHoldWatcherState" ;; this gets an entry in the lines executed list
 		; Send("hold" state "`n")
 		this.holdWatcherState := state
 		SetTimer this.HoldWatcherBound, (state ? -this.holdTime : 0)
@@ -260,7 +257,7 @@ class KeyManager {
 
 	; When a key is released, if it is re-pressed within tapGap, the sequence increments
 	SetTapWatcherState(state){
-		() => key := "SetTapWatcherState"
+		; () => key := "SetTapWatcherState" ;; this gets an entry in the lines executed list
 		; Send("tap" state "`n")
 		this.tapWatcherState := state
 		SetTimer this.TapWatcherBound, (state ? -this.tapGap : 0)
@@ -268,7 +265,7 @@ class KeyManager {
 
 	; If this function fires, a key was held for longer than the tap timeout, so engage hold mode
 	HoldWatcher(){
-		() => key := "HoldWatcher"
+		; () => key := "HoldWatcher" ;; this gets an entry in the lines executed list
 		if (this.sequence > 0 && this.state == 1){
 			; Got to end of tapGap after first press, and still held.
 			; HOLD PRESS
@@ -279,7 +276,7 @@ class KeyManager {
 
 	; If this function fires, a key was released and we got to the end of the tap timeout, but no press was seen
 	TapWatcher(){
-		() => key := "TapWatcher"
+		; () => key := "TapWatcher" ;; this gets an entry in the lines executed list
 		if (this.sequence > 0 && this.state == 0){
 			; TAP
 			this.FireCallback(false, this.sequence)
@@ -288,7 +285,7 @@ class KeyManager {
 	}
 
 	FireCallback(isHold, seq, state := -1, rolled := 0, mods := ""){
-		() => key := "FireCallback"
+		; () => key := "FireCallback" ;; this gets an entry in the lines executed list
 		; Send(isHold . seq . state . rolled . mods . "`n")
 
 		cb := this.Callback.Bind(isHold, seq, state, rolled, mods)
